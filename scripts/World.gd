@@ -2,6 +2,9 @@ extends Node2D
 
 onready var camera = $Camera2D
 
+const dome_scene = preload("res://scenes/entity/Dome.tscn")
+const drone_scene = preload("res://scenes/entity/Drone.tscn")
+
 # variables to show the selection rectangle
 # and query the physics engine for selected units
 var dragging := false
@@ -33,6 +36,8 @@ func _ready():
 	screen_margin_left = viewport.x * screen_margin
 	screen_margin_down = viewport.y * (1.0 - screen_margin)
 	screen_margin_right = viewport.x * (1.0 - screen_margin)
+	
+	generate_map(3)
 
 func _unhandled_input(event):
 	# if mouse 1 is down start showing the rectagnle
@@ -117,6 +122,12 @@ func _notification(what):
 		MainLoop.NOTIFICATION_WM_MOUSE_ENTER:
 			mouse_in_screen = true
 
+func generate_map(difficulty):
+	for i in range(difficulty):
+		var drone = drone_scene.instance()
+		drone.position = Vector2(i * 50, 0)
+		add_child(drone)
+
 # query the physics engine based on the rectangle created
 func select_units(drag_end):
 	select_rect.extents = (drag_end - drag_start) / 2		
@@ -152,17 +163,18 @@ func action(position):
 		move_units(position)
 
 func move_units(position):
-	if selected.size() == 1:
-		selected[0].set_target_location(position, true)
-	elif selected.size() > 1:
-		for unit in selected:
-			unit.set_target_location(position, false)
+	for unit in selected:
+		unit.move_to(position)
 
 func work_units(enemy_unit):
+	if enemy_unit.is_in_group("dome") and not enemy_unit.allow_drone():
+		return
+	
 	var amount = 0
+	
 	for unit in selected:
-		unit.set_target_location(enemy_unit.position, true)
+		unit.action_move_to(enemy_unit)
 		
 		amount += 1
 		if amount >= enemy_unit.max_action_spots:
-			break 
+			break

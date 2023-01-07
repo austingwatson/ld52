@@ -1,10 +1,12 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://assets/drone.png" type="Texture" id=1]
+[ext_resource path="res://assets/temp/drone.png" type="Texture" id=1]
 [ext_resource path="res://scripts/entity/Drone.gd" type="Script" id=2]
 
 [sub_resource type="RectangleShape2D" id=2]
 extents = Vector2( 4, 4 )
+
+[sub_resource type="CircleShape2D" id=3]
 
 [node name="Drone" type="KinematicBody2D" groups=["drone"]]
 script = ExtResource( 2 )
@@ -28,4 +30,11 @@ path_desired_distance = 5.0
 target_desired_distance = 5.0
 avoidance_enabled = true
 
+[node name="SeperationRange" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SeperationRange"]
+shape = SubResource( 3 )
+
 [connection signal="velocity_computed" from="NavigationAgent2D" to="." method="_on_NavigationAgent2D_velocity_computed"]
+[connection signal="body_entered" from="SeperationRange" to="." method="_on_SeperationRange_body_entered"]
+[connection signal="body_exited" from="SeperationRange" to="." method="_on_SeperationRange_body_exited"]

@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/colonist.png-cef62db922f9c6ee9572b518a0b17b75.stex"
+path="res://.import/colonist.png-4d58d8a8dbef1ec690a7bd93211c1cef.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/colonist.png"
-dest_files=[ "res://.import/colonist.png-cef62db922f9c6ee9572b518a0b17b75.stex" ]
+source_file="res://assets/temp/colonist.png"
+dest_files=[ "res://.import/colonist.png-4d58d8a8dbef1ec690a7bd93211c1cef.stex" ]
 
 [params]
 

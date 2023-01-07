@@ -1,38 +1,41 @@
 extends KinematicBody2D
 
 onready var selection_label = $SelectionLabel
-onready var nav_agent = $NavigationAgent2D
 
 var selected = false
 
+var action_target = null
 var target = Vector2.ZERO
 const target_max = 1.0
 
 var velocity = Vector2.ZERO
 export var speed = 60
 
+var flock_drones = []
+var enemy = null
+var enemy_min_distance = 0
+
 var rotation_direction = 0
 export var min_rotation = -5.0
 export var max_rotation = 5.0
 export var rotation_speed = 40.0
 
-enum MovementState {
+enum State {
 	Idle,
-	GroupMove,
-	DirectMove
+	Moving,
+	Action,
+	ActionMoving
 }
-var movement_state = MovementState.Idle
-
-func _ready():
-	set_target_location(position, false)
+var state = State.Idle
 
 func _physics_process(delta):
-	if movement_state == MovementState.GroupMove:
-		move_with_group()
-	elif movement_state == MovementState.DirectMove:
-		direct_move(delta)
-
-	if velocity.length() > 0:
+	if state == State.Moving || state == State.ActionMoving:
+		velocity = position.direction_to(target) * speed
+		position += velocity * delta
+		
+		if state != State.ActionMoving && position.distance_to(target) <= target_max:
+			state = State.Idle
+		
 		if rotation_direction == 0:
 			rotation_degrees += rotation_speed * delta
 			if rotation_degrees >= max_rotation:
@@ -41,25 +44,20 @@ func _physics_process(delta):
 			rotation_degrees -= rotation_speed * delta
 			if rotation_degrees <= min_rotation:
 				rotation_direction = 0
-		
-	if movement_state == MovementState.Idle:
-		rotation_degrees = 0.0
 
-func move_with_group():
-	var move_direction = position.direction_to(nav_agent.get_next_location())
-	velocity = move_direction * speed
-	nav_agent.set_velocity(velocity)
-	
-	if nav_agent.is_navigation_finished():
-		movement_state = MovementState.Idle
-
-func direct_move(delta):
-	velocity = Vector2.ZERO
-	if position.distance_to(target) > target_max:
-		velocity = position.direction_to(target) * speed
-		position += velocity * delta
-	else:
-		movement_state = MovementState.Idle
+	elif state == State.Idle:
+		if enemy != null:
+			velocity = position.direction_to(enemy.position) * -speed
+			position += velocity * delta
+			
+			if position.distance_to(enemy.position) > enemy_min_distance:
+				enemy = null
+		elif flock_drones.size() > 0:
+			velocity = position.direction_to(flock_drones[0].position) * -speed
+			position += velocity * delta
+			
+		if velocity.length() == 0:
+			rotation_degrees = 0.0
 
 func select():
 	selected = true
@@ -69,18 +67,45 @@ func deselect():
 	selected = false
 	selection_label.visible = false
 
-func stop():
-	movement_state = MovementState.Idle
-
-func set_target_location(target, direct):
-	self.target = target
+func in_action():
+	state = State.Action
 	
-	if not direct:
-		movement_state = MovementState.GroupMove
-		nav_agent.set_target_location(target)
-	else:
-		movement_state = MovementState.DirectMove
+func stop_action(enemy, enemy_min_distance):
+	state = State.Idle
+	
+	self.enemy = enemy
+	self.enemy_min_distance = enemy_min_distance
 
-func _on_NavigationAgent2D_velocity_computed(safe_velocity):
-	if not nav_agent.is_navigation_finished():
-		velocity = move_and_slide(safe_velocity)
+func give_brain():
+	print("drone taken brain")
+	return true
+
+func move_to(target):
+	action_target = null
+	self.target = target
+	state = State.Moving
+
+func action_move_to(action_target):
+	self.action_target = action_target
+	self.target = action_target.position
+	state = State.ActionMoving
+
+func is_action_moving():
+	if state == State.ActionMoving:
+		return true
+	else:
+		return false
+
+func _on_SeperationRange_body_entered(body):
+	if body == self:
+		return
+	
+	if body.is_in_group("drone"):
+		flock_drones.append(body)
+
+func _on_SeperationRange_body_exited(body):
+	if body == self:
+		return
+	
+	if body.is_in_group("drone"):
+		flock_drones.erase(body)
