@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://assets/temp/drone.png" type="Texture" id=1]
 [ext_resource path="res://scripts/entity/Drone.gd" type="Script" id=2]
+[ext_resource path="res://assets/temp/brain.png" type="Texture" id=3]
 
 [sub_resource type="RectangleShape2D" id=2]
 extents = Vector2( 4, 4 )
@@ -34,6 +35,11 @@ avoidance_enabled = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SeperationRange"]
 shape = SubResource( 3 )
+
+[node name="Brain" type="Sprite" parent="."]
+visible = false
+position = Vector2( 0, -7 )
+texture = ExtResource( 3 )
 
 [connection signal="velocity_computed" from="NavigationAgent2D" to="." method="_on_NavigationAgent2D_velocity_computed"]
 [connection signal="body_entered" from="SeperationRange" to="." method="_on_SeperationRange_body_entered"]

@@ -16,13 +16,19 @@ func _ready():
 	action_range_radius = $ActionRange/CollisionShape2D.shape.radius * 2
 
 func _process(delta):
-	if time_left > 0.0:
+	if time_left > 0.0 && current_drones.size() > 0:
 		time_left -= delta * current_drones.size()
 		
 		texture_progress.value = (action_wait_time - time_left) * texture_progress.max_value
 		
 		if time_left <= 0.0:
 			action_done()
+
+func action_start():
+	pass
+	
+func action_interuppted():
+	pass
 
 func action_done():
 	texture_progress.visible = false
@@ -56,6 +62,7 @@ func _on_ActionRange_body_entered(body):
 	if current_drones.size() == 0:
 		time_left = action_wait_time
 		texture_progress.visible = true
+		action_start()
 		
 	current_drones.append(body)
 	body.in_action()
@@ -65,6 +72,9 @@ func _on_ActionRange_body_exited(body):
 		return
 	
 	current_drones.erase(body)
+	if current_drones.size() == 0:
+		action_interuppted()
+		texture_progress.visible = false
 	
 	if body.action_target == self:
 		body.stop_action(self, action_range_radius)

@@ -1,6 +1,7 @@
 extends KinematicBody2D
 
 onready var selection_label = $SelectionLabel
+onready var brain = $Brain
 
 var selected = false
 
@@ -29,6 +30,11 @@ enum State {
 var state = State.Idle
 
 func _physics_process(delta):
+	velocity = Vector2.ZERO
+	
+	if state == State.ActionMoving:
+		target = action_target.position
+	
 	if state == State.Moving || state == State.ActionMoving:
 		velocity = position.direction_to(target) * speed
 		position += velocity * delta
@@ -56,8 +62,8 @@ func _physics_process(delta):
 			velocity = position.direction_to(flock_drones[0].position) * -speed
 			position += velocity * delta
 			
-		if velocity.length() == 0:
-			rotation_degrees = 0.0
+	if velocity.length() == 0:
+		rotation_degrees = 0
 
 func select():
 	selected = true
@@ -77,8 +83,11 @@ func stop_action(enemy, enemy_min_distance):
 	self.enemy_min_distance = enemy_min_distance
 
 func give_brain():
-	print("drone taken brain")
-	return true
+	if brain.visible:
+		return false
+	else:
+		brain.visible = true
+		return true
 
 func move_to(target):
 	action_target = null

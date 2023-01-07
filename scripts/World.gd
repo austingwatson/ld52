@@ -37,7 +37,7 @@ func _ready():
 	screen_margin_down = viewport.y * (1.0 - screen_margin)
 	screen_margin_right = viewport.x * (1.0 - screen_margin)
 	
-	generate_map(3)
+	generate_map(1)
 
 func _unhandled_input(event):
 	# if mouse 1 is down start showing the rectagnle

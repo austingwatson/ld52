@@ -12,11 +12,18 @@ func action_done():
 	.action_done()
 	
 	if population > 0:
-		population -= 1
-		label.text = str(population)
+		var brain_given = false
+		
 		for drone in current_drones:
 			if drone.give_brain():
+				brain_given = true
 				break
+		
+		if not brain_given:
+			return
+		
+		population -= 1
+		label.text = str(population)
 		
 		if population == 0:
 			off = true
