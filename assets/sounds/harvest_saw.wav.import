@@ -1,0 +1,23 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/harvest_saw.wav-6b31debfa9932350c34c539a075bd671.sample"
+
+[deps]
+
+source_file="res://assets/sounds/harvest_saw.wav"
+dest_files=[ "res://.import/harvest_saw.wav-6b31debfa9932350c34c539a075bd671.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0
