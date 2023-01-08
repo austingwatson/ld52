@@ -1,9 +1,14 @@
 extends Node2D
 
 onready var camera = $Camera2D
+onready var cloud_layer = $ParallaxBackground/ParallaxLayer
+onready var hud = $Hud
 
 const dome_scene = preload("res://scenes/entity/Dome.tscn")
 const drone_scene = preload("res://scenes/entity/Drone.tscn")
+const path_texture = preload("res://assets/structures/path.png")
+
+export(float) var cloud_speed = -5
 
 # variables to show the selection rectangle
 # and query the physics engine for selected units
@@ -17,7 +22,10 @@ export var camera_speed_keys := 100
 var camera_movement := [false, false, false, false]
 
 var zoom_min = 0.25
-var zoom_max = 4
+var zoom_max = 2
+
+var drag_screen = false
+var old_mouse_pos = Vector2.ZERO
 
 # variables to drag the camera based on if the
 # mouse is near the screen edges
@@ -30,14 +38,19 @@ var screen_margin_left := 0.0
 var screen_margin_down := 0.0
 var screen_margin_right := 0.0
 
+var queue_modifier = false
+
 func _ready():
+	select_query.collide_with_bodies = false
+	select_query.collide_with_areas = true
+	
 	var viewport = get_viewport().get_visible_rect().size
 	screen_margin_up = viewport.y * screen_margin
 	screen_margin_left = viewport.x * screen_margin
 	screen_margin_down = viewport.y * (1.0 - screen_margin)
 	screen_margin_right = viewport.x * (1.0 - screen_margin)
 	
-	generate_map(1)
+	generate_map(5)
 
 func _unhandled_input(event):
 	# if mouse 1 is down start showing the rectagnle
@@ -84,8 +97,30 @@ func _unhandled_input(event):
 		if camera.zoom.x > zoom_max:
 			camera.zoom = Vector2(zoom_max, zoom_max)
 	
+	elif event.is_action_pressed("drag_screen"):
+		old_mouse_pos = get_viewport().get_mouse_position()
+		drag_screen = true
+	elif event.is_action_released("drag_screen"):
+		drag_screen = false
+	
+	elif event.is_action_pressed("shift"):
+		queue_modifier = true
+		
+		for drone in get_tree().get_nodes_in_group("drone"):
+			drone.holding_shift(true)
+		
+	elif event.is_action_released("shift"):
+		queue_modifier = false
+		
+		for drone in get_tree().get_nodes_in_group("drone"):
+			drone.holding_shift(false)
+	
 	if event is InputEventMouseMotion:
 		mouse_pos = event.position
+		
+func _physics_process(delta):
+	#cloud_layer.motion_offset.x += cloud_speed * delta
+	pass
 		
 func _process(delta):
 	if dragging:
@@ -110,6 +145,12 @@ func _process(delta):
 			camera.position.y += camera_speed_edge * delta
 		if mouse_pos.x >= screen_margin_right:
 			camera.position.x += camera_speed_edge * delta
+	
+	if drag_screen:
+		var mouse_pos = get_viewport().get_mouse_position()
+		var mouse_delta = mouse_pos - old_mouse_pos
+		old_mouse_pos = mouse_pos
+		camera.position += mouse_delta
 		
 func _draw():
 	if dragging:
@@ -123,10 +164,76 @@ func _notification(what):
 			mouse_in_screen = true
 
 func generate_map(difficulty):
+	randomize()
+	
 	for i in range(difficulty):
 		var drone = drone_scene.instance()
-		drone.position = Vector2(i * 50, 0)
+		drone.position = Vector2(i * 16 - 100, -315)
 		add_child(drone)
+	
+	var domes = []
+	var x = 0
+	var sy = 15
+	var y = sy
+	var dome = dome_scene.instance()
+	dome.population = 6
+	dome.position = Vector2(x, y * 8)
+	domes.append(dome)
+	
+	var min_distance = 128
+	
+	for i in range(1, difficulty):
+		var valid = false
+		while !valid:
+			valid = true
+			x = randi() % 61 - 30
+			y = randi() % 61 - 30
+			y += sy
+			
+			for d in domes:
+				if d.position.distance_to(Vector2(x * 8, y * 8)) <= min_distance:
+					valid = false
+		
+		dome = dome_scene.instance()
+		dome.position = Vector2(x * 8, y * 8)
+		domes.append(dome)
+
+	for i in range(domes.size()):
+		for j in range(i, domes.size()):
+			var line = Line2D.new()
+			line.width = 4
+			line.default_color = Color.white
+			line.texture = path_texture
+			line.texture_mode = Line2D.LINE_TEXTURE_TILE
+			line.z_index = -1
+		
+			var rng = 2
+			if rng == 0:
+				# horizontal
+				line.add_point(Vector2(domes[i].position.x, domes[i].position.y))
+				line.add_point(Vector2(domes[j].position.x, domes[i].position.y))
+				line.add_point(domes[j].position)
+			elif rng == 1:
+				# vertical
+				line.add_point(Vector2(domes[i].position.x, domes[i].position.y))
+				line.add_point(Vector2(domes[i].position.x, domes[j].position.y))
+				line.add_point(domes[j].position)
+			elif rng == 2:
+				line.add_point(domes[i].position)
+				line.add_point(domes[j].position)
+		
+			add_child(line)
+
+	for d in domes:
+		add_child(d)
+		
+	var mother_brain = $MotherBrain
+	var rx = randi() % 901 - 450
+	mother_brain.position = Vector2(mother_brain.position.x + rx, mother_brain.position.y)
+	camera.position = mother_brain.position
+	
+	for drone in get_tree().get_nodes_in_group("drone"):
+		drone.position.x += rx + 70
 
 # query the physics engine based on the rectangle created
 func select_units(drag_end):
@@ -148,16 +255,20 @@ func select_units(drag_end):
 
 func action(position):
 	var space = get_world_2d().direct_space_state
-	var collision_objects = space.intersect_point(position, 1)
+	var collision_objects = space.intersect_point(position, 15, [], 0x7FFFFFFF, true, true)
 	var enemy_unit = null
 	
-	if collision_objects:
-		enemy_unit = collision_objects[0].collider
-		
-		if enemy_unit.is_in_group("drone"):
-			enemy_unit = null
+	for collision in collision_objects:
+		if collision.collider.is_in_group("enemy"):
+			enemy_unit = collision.collider
+			break
 	
-	if enemy_unit:
+	if queue_modifier:
+		if enemy_unit:
+			work_units_with_queue(enemy_unit)
+		else:
+			move_units_with_queue(position)
+	elif enemy_unit:
 		work_units(enemy_unit)
 	else:
 		move_units(position)
@@ -165,16 +276,36 @@ func action(position):
 func move_units(position):
 	for unit in selected:
 		unit.move_to(position)
+		unit.remove_commands()
 
 func work_units(enemy_unit):
-	if enemy_unit.is_in_group("dome") and not enemy_unit.allow_drone():
-		return
-	
 	var amount = 0
 	
 	for unit in selected:
+		if !enemy_unit.is_in_group("mother_brain") && unit.holding_brain():
+			continue
 		unit.action_move_to(enemy_unit)
+		unit.remove_commands()
 		
 		amount += 1
 		if amount >= enemy_unit.max_action_spots:
 			break
+
+func move_units_with_queue(position):
+	for unit in selected:
+		unit.add_action("move_to", position, position)
+	
+func work_units_with_queue(enemy_unit):
+	var amount = 0
+	
+	for unit in selected:
+		if !enemy_unit.is_in_group("mother_brain") && unit.holding_brain():
+			continue
+		unit.add_action("action_move_to", enemy_unit, enemy_unit.position)
+		
+		amount += 1
+		if amount >= enemy_unit.max_action_spots:
+			break
+
+func add_to_panic(amount):
+	hud.add_to_panic(amount)
