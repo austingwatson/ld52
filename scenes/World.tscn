@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://scripts/World.gd" type="Script" id=1]
 [ext_resource path="res://scenes/entity/MotherBrain.tscn" type="PackedScene" id=2]
@@ -6,8 +6,30 @@
 [ext_resource path="res://scenes/ui/Hud.tscn" type="PackedScene" id=4]
 [ext_resource path="res://assets/landscape/landscape3.png" type="Texture" id=5]
 [ext_resource path="res://assets/landscape/landscape2.png" type="Texture" id=6]
+[ext_resource path="res://assets/ui/click_animation.png" type="Texture" id=7]
 [ext_resource path="res://assets/landscape/landscape4.png" type="Texture" id=8]
 [ext_resource path="res://assets/landscape/landscape5.png" type="Texture" id=9]
+[ext_resource path="res://assets/ui/cordon.png" type="Texture" id=10]
+
+[sub_resource type="AtlasTexture" id=1]
+atlas = ExtResource( 7 )
+region = Rect2( 0, 0, 32, 32 )
+
+[sub_resource type="AtlasTexture" id=2]
+atlas = ExtResource( 7 )
+region = Rect2( 32, 0, 32, 32 )
+
+[sub_resource type="AtlasTexture" id=3]
+atlas = ExtResource( 7 )
+region = Rect2( 64, 0, 32, 32 )
+
+[sub_resource type="SpriteFrames" id=4]
+animations = [ {
+"frames": [ SubResource( 1 ), SubResource( 2 ), SubResource( 3 ) ],
+"loop": true,
+"name": "default",
+"speed": 5.0
+} ]
 
 [node name="World" type="Node2D"]
 script = ExtResource( 1 )
@@ -54,11 +76,15 @@ texture = ExtResource( 6 )
 region_enabled = true
 region_rect = Rect2( 0, 0, 2880, 1080 )
 
-[node name="ParallaxLayer5" type="ParallaxLayer" parent="ParallaxBackground"]
+[node name="ParallaxForeground" type="ParallaxBackground" parent="."]
+layer = 100
+
+[node name="ParallaxLayer" type="ParallaxLayer" parent="ParallaxForeground"]
 motion_scale = Vector2( 0.8, 1 )
 motion_mirroring = Vector2( 960, 0 )
 
-[node name="Sprite" type="Sprite" parent="ParallaxBackground/ParallaxLayer5"]
+[node name="Sprite" type="Sprite" parent="ParallaxForeground/ParallaxLayer"]
+position = Vector2( 0, 300 )
 texture = ExtResource( 3 )
 region_enabled = true
 region_rect = Rect2( 0, 0, 2880, 1080 )
@@ -67,7 +93,30 @@ region_rect = Rect2( 0, 0, 2880, 1080 )
 current = true
 
 [node name="MotherBrain" parent="." instance=ExtResource( 2 )]
-position = Vector2( 0, -352 )
-collision_mask = 0
+position = Vector2( 0, -400 )
 
 [node name="Hud" parent="." instance=ExtResource( 4 )]
+
+[node name="ClickSpot" type="AnimatedSprite" parent="."]
+visible = false
+scale = Vector2( 0.5, 0.5 )
+z_index = 100
+frames = SubResource( 4 )
+frame = 2
+speed_scale = 2.0
+
+[node name="LeftBoundry" type="Line2D" parent="."]
+points = PoolVector2Array( -480, -430, -480, 305 )
+width = 4.0
+default_color = Color( 1, 1, 1, 0.686275 )
+texture = ExtResource( 10 )
+texture_mode = 1
+
+[node name="RightBoundry" type="Line2D" parent="."]
+points = PoolVector2Array( 480, -430, 480, 305 )
+width = 4.0
+default_color = Color( 1, 1, 1, 0.686275 )
+texture = ExtResource( 10 )
+texture_mode = 1
+
+[connection signal="animation_finished" from="ClickSpot" to="." method="_on_ClickSpot_animation_finished"]

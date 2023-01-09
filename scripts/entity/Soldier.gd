@@ -3,6 +3,8 @@ extends "res://scripts/entity/Colonist.gd"
 onready var guard_timer = $GuardTimer
 onready var shoot_timer = $ShootTimer
 onready var rest_timer = $RestTimer
+onready var muzzle_flash = $MuzzleFlash
+onready var patrol_timer = $PatrolTimer
 
 enum FightState {
 	None,
@@ -10,7 +12,9 @@ enum FightState {
 	Guard,
 	DragColonistMoving,
 	DragColonist,
-	Pursue
+	Pursue,
+	Patrol,
+	AttackMotherBrain
 }
 var fight_state = FightState.None
 
@@ -23,6 +27,11 @@ var drone_in_sight = false
 var drone_target = null
 var resting = false
 var can_shoot = false
+
+var patrol_queue = []
+var patrol_rest = true
+
+var mother_brain_in_range = false
 
 func _ready():
 	var rng = randi() % 2
@@ -42,6 +51,12 @@ func _physics_process(delta):
 			
 	elif fight_state == FightState.Guard:
 		vision_cone.rotate(guard_rotation_speed)
+		
+		var dir = cos(vision_cone.rotation)
+		if dir <= 0:
+			animated_sprite.flip_h = true
+		else:
+			animated_sprite.flip_h = false
 		
 		if is_instance_valid(colonist_to_drag) && colonist_to_drag.being_dragged:
 			fight_state = FightState.None
@@ -85,14 +100,38 @@ func _physics_process(delta):
 			move(delta)
 			if position.distance_to(target) <= target_max:
 				fight_state = FightState.Guard
+				guard_timer.start()
 		else:
 			target = drone_target.position
 			vision_cone.rotation = position.direction_to(target).angle()
 			shoot()
+	
+	elif fight_state == FightState.Patrol:
+		if state == State.Idle:
+			if patrol_rest:
+				patrol_timer.start()
+				patrol_rest = false
+				
+	elif fight_state == FightState.AttackMotherBrain:
+		if mother_brain_in_range && can_shoot:
+			shoot()
 
 func _exit_tree():
 	if colonist_to_drag != null && is_instance_valid(colonist_to_drag):
+		get_parent().add_to_panic(1)
 		colonist_to_drag.queue_free()
+
+func go_to_mother_brain():
+	var mother_brain = get_tree().get_nodes_in_group("mother_brain")
+	move_to(mother_brain[0].position)
+
+func attack_mother_brain():
+	go_to_mother_brain()
+	fight_state = FightState.AttackMotherBrain
+
+func move_to_search(position):
+	move_to(position)
+	state = State.MoveSearch
 
 func shoot():
 	print("shoot")
@@ -100,10 +139,31 @@ func shoot():
 	shoot_timer.start()
 	resting = true
 	rest_timer.start()
+	
+	muzzle_flash.play("default")
+	muzzle_flash.visible = true
+	
+	var dir = cos(vision_cone.rotation)
+	if dir <= 0:
+		muzzle_flash.flip_h = true
+		muzzle_flash.position = Vector2(-13, -1)
+	else:
+		muzzle_flash.flip_h = false
+		muzzle_flash.position = Vector2(13, -1)
+
+func patrol():
+	for i in range(4):
+		var x = randi() % 301 - 150
+		var y = randi() % 301 - 150
+		patrol_queue.append(position + Vector2(x, y))
+		
+	move_to(patrol_queue.pop_front())
+	fight_state = FightState.Patrol
 
 func _on_SearchTimer_timeout():
 	if suspect == 1:
 		fight_state = FightState.GuardMoving
+		colonist_to_drag.reported = true
 		guard_timer.start()
 	elif suspect == 2:
 		drone_in_sight = true
@@ -143,6 +203,16 @@ func _on_VisionCone_area_entered(area):
 				state = State.Searching
 				search_timer.start()
 				suspect = 1
+	elif area.is_in_group("mother_brain"):
+		if fight_state == FightState.AttackMotherBrain:
+			if !mother_brain_in_range:
+				can_shoot = true
+			
+			state = State.Idle
+			mother_brain_in_range = true
+		else:
+			panic_state = PanicState.Panic
+			go_to_closest_dome()
 
 func _on_VisionCone_area_exited(area):
 	if area.is_in_group("drone"):
@@ -157,11 +227,29 @@ func _on_VisionCone_area_exited(area):
 			state = State.Moving
 
 func _on_GuardTimer_timeout():
-	fight_state = FightState.DragColonistMoving
-	dome_target = null
+	if drone_target != null:
+		fight_state = FightState.None
+		state = State.Moving
+		go_to_closest_dome()
+	else:
+		fight_state = FightState.DragColonistMoving
+		dome_target = null
 
 func _on_ShootTimer_timeout():
 	can_shoot = true
 
 func _on_RestTimer_timeout():
 	resting = false
+
+func _on_MuzzleFlash_animation_finished():
+	muzzle_flash.visible = false
+	muzzle_flash.playing = false
+
+func _on_PatrolTimer_timeout():
+	patrol_rest = true
+	if patrol_queue.size() > 0:
+		move_to(patrol_queue.pop_front())
+	else:
+		fight_state = FightState.None
+		state = State.Moving
+		go_to_closest_dome()

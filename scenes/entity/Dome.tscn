@@ -1,9 +1,13 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=22 format=2]
 
 [ext_resource path="res://scenes/entity/Enemy.tscn" type="PackedScene" id=1]
 [ext_resource path="res://scripts/entity/Dome.gd" type="Script" id=2]
 [ext_resource path="res://assets/structures/dome_1.png" type="Texture" id=3]
 [ext_resource path="res://assets/structures/dome_charged.png" type="Texture" id=4]
+[ext_resource path="res://assets/structures/window_lit.png" type="Texture" id=5]
+[ext_resource path="res://assets/effects/spotlight_beam.png" type="Texture" id=6]
+[ext_resource path="res://assets/structures/turret_sheet.png" type="Texture" id=7]
+[ext_resource path="res://scenes/entity/Generator.tscn" type="PackedScene" id=8]
 
 [sub_resource type="AtlasTexture" id=3]
 atlas = ExtResource( 3 )
@@ -41,13 +45,46 @@ animations = [ {
 [sub_resource type="CircleShape2D" id=9]
 radius = 32.0156
 
+[sub_resource type="AtlasTexture" id=10]
+atlas = ExtResource( 7 )
+region = Rect2( 0, 22, 16, 10 )
+
+[sub_resource type="AtlasTexture" id=11]
+atlas = ExtResource( 7 )
+region = Rect2( 0, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=12]
+atlas = ExtResource( 7 )
+region = Rect2( 16, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=13]
+atlas = ExtResource( 7 )
+region = Rect2( 32, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=14]
+atlas = ExtResource( 7 )
+region = Rect2( 48, 0, 16, 16 )
+
+[sub_resource type="SpriteFrames" id=15]
+animations = [ {
+"frames": [ SubResource( 11 ), SubResource( 12 ) ],
+"loop": true,
+"name": "spotlight",
+"speed": 5.0
+}, {
+"frames": [ SubResource( 13 ), SubResource( 14 ) ],
+"loop": true,
+"name": "turret",
+"speed": 5.0
+} ]
+
 [node name="Dome" groups=["dome"] instance=ExtResource( 1 )]
 z_index = 2
-input_pickable = true
 script = ExtResource( 2 )
 max_action_spots = 4
 population = 1
-max_population = 6
+max_population = 7
+spotlight_rotation_speed = 0.2
 
 [node name="AnimatedSprite" parent="." index="0"]
 frames = SubResource( 8 )
@@ -57,21 +94,14 @@ animation = "powered"
 shape = SubResource( 9 )
 
 [node name="TextureProgress" parent="." index="2"]
-margin_top = -42.0
-margin_bottom = -26.0
+margin_top = -38.0
+margin_bottom = -22.0
 
 [node name="FoodTimer" type="Timer" parent="." index="3"]
 wait_time = 5.0
 autostart = true
 
-[node name="Label" type="Label" parent="." index="4"]
-margin_left = -5.0
-margin_top = -7.0
-margin_right = 3.0
-margin_bottom = 7.0
-text = "1"
-
-[node name="FoodBar" type="TextureProgress" parent="." index="5"]
+[node name="FoodBar" type="TextureProgress" parent="." index="4"]
 margin_left = -32.0
 margin_top = -24.0
 margin_right = 32.0
@@ -79,4 +109,92 @@ margin_bottom = 24.0
 mouse_filter = 2
 texture_progress = ExtResource( 4 )
 
+[node name="Pop1" type="Sprite" parent="." index="5"]
+position = Vector2( -17, 0.5 )
+texture = ExtResource( 5 )
+
+[node name="Pop2" type="Sprite" parent="." index="6"]
+visible = false
+position = Vector2( -17, 6.5 )
+texture = ExtResource( 5 )
+
+[node name="Pop3" type="Sprite" parent="." index="7"]
+visible = false
+position = Vector2( 1, 0.5 )
+texture = ExtResource( 5 )
+
+[node name="Pop4" type="Sprite" parent="." index="8"]
+visible = false
+position = Vector2( 1, 6.5 )
+texture = ExtResource( 5 )
+
+[node name="Pop5" type="Sprite" parent="." index="9"]
+visible = false
+position = Vector2( 1, 12.5 )
+texture = ExtResource( 5 )
+
+[node name="Pop6" type="Sprite" parent="." index="10"]
+visible = false
+position = Vector2( 19, 0.5 )
+texture = ExtResource( 5 )
+
+[node name="Pop7" type="Sprite" parent="." index="11"]
+visible = false
+position = Vector2( 19, 6.5 )
+texture = ExtResource( 5 )
+
+[node name="Action" parent="." index="12"]
+margin_right = 66.0
+margin_bottom = 20.0
+text = "Harvest"
+
+[node name="TurretBase" type="Sprite" parent="." index="13"]
+visible = false
+position = Vector2( 0, -22 )
+texture = SubResource( 10 )
+
+[node name="VisionCone" type="Node2D" parent="." index="14"]
+position = Vector2( 0, -28 )
+
+[node name="Area2D" type="Area2D" parent="VisionCone" index="0"]
+z_index = 1
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="VisionCone/Area2D" index="0"]
+position = Vector2( 0, 28 )
+polygon = PoolVector2Array( 9, -28, 197, -120, 196, 62 )
+
+[node name="Turret" type="AnimatedSprite" parent="VisionCone" index="1"]
+visible = false
+frames = SubResource( 15 )
+animation = "spotlight"
+
+[node name="Sprite" type="Sprite" parent="VisionCone" index="2"]
+visible = false
+modulate = Color( 1, 1, 1, 0.196078 )
+position = Vector2( 107, 0 )
+texture = ExtResource( 6 )
+
+[node name="BuildTimer" type="Timer" parent="." index="15"]
+one_shot = true
+
+[node name="ActionTimer" type="Timer" parent="." index="16"]
+wait_time = 2.0
+one_shot = true
+
+[node name="Label" type="Label" parent="." index="17"]
+visible = false
+margin_left = -34.0
+margin_top = -50.0
+margin_right = 39.0
+margin_bottom = -36.0
+text = "dome walls"
+
+[node name="Generator" parent="." index="18" instance=ExtResource( 8 )]
+visible = false
+position = Vector2( -44, 0 )
+
 [connection signal="timeout" from="FoodTimer" to="." method="_on_FoodTimer_timeout"]
+[connection signal="area_entered" from="VisionCone/Area2D" to="." method="_on_VisionCone_area_entered"]
+[connection signal="area_exited" from="VisionCone/Area2D" to="." method="_on_VisionCone_area_exited"]
+[connection signal="timeout" from="BuildTimer" to="." method="_on_BuildTimer_timeout"]
+[connection signal="timeout" from="ActionTimer" to="." method="_on_ActionTimer_timeout"]

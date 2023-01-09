@@ -3,10 +3,12 @@ extends Node2D
 onready var camera = $Camera2D
 onready var cloud_layer = $ParallaxBackground/ParallaxLayer
 onready var hud = $Hud
+onready var click_spot = $ClickSpot
 
 const dome_scene = preload("res://scenes/entity/Dome.tscn")
 const drone_scene = preload("res://scenes/entity/Drone.tscn")
 const path_texture = preload("res://assets/structures/path.png")
+const generator_scene = preload("res://scenes/entity/Generator.tscn")
 
 export(float) var cloud_speed = -5
 
@@ -66,7 +68,20 @@ func _unhandled_input(event):
 		select_units(get_global_mouse_position())
 		
 	elif event.is_action_pressed("basic_action"):
-		action(get_global_mouse_position())
+		var mouse_pos = get_global_mouse_position()
+		
+		var in_bounds = true
+		if mouse_pos.x < WorldBounds.world_bounds_left.x || mouse_pos.x > WorldBounds.world_bounds_right.x:
+			in_bounds = false
+		elif mouse_pos.y < WorldBounds.world_bounds_left.y || mouse_pos.y > WorldBounds.world_bounds_right.y:
+			in_bounds = false
+		
+		if in_bounds:
+			action(mouse_pos)
+			click_spot.play("default")
+			click_spot.position = mouse_pos
+			click_spot.frame = 0
+			click_spot.visible = true
 	
 	elif event.is_action_pressed("move_up"):
 		camera_movement[0] = true
@@ -176,18 +191,17 @@ func generate_map(difficulty):
 	var sy = 15
 	var y = sy
 	var dome = dome_scene.instance()
-	dome.population = 6
 	dome.position = Vector2(x, y * 8)
 	domes.append(dome)
 	
-	var min_distance = 128
+	var min_distance = 250
 	
 	for i in range(1, difficulty):
 		var valid = false
 		while !valid:
 			valid = true
-			x = randi() % 61 - 30
-			y = randi() % 61 - 30
+			x = randi() % 81 - 40
+			y = randi() % 61 - 40
 			y += sy
 			
 			for d in domes:
@@ -226,6 +240,14 @@ func generate_map(difficulty):
 
 	for d in domes:
 		add_child(d)
+	
+	var temp_domes = []
+	temp_domes.append_array(domes)
+	
+	for i in range(difficulty):
+		var generator = generator_scene.instance()
+		generator.move_to_parent(temp_domes.pop_front())
+		add_child(generator)
 		
 	var mother_brain = $MotherBrain
 	var rx = randi() % 901 - 450
@@ -252,8 +274,13 @@ func select_units(drag_end):
 		if unit.collider.is_in_group("drone"):
 			unit.collider.select()
 			selected.append(unit.collider)
+			
+	if selected.size() > 0:
+		WorldBounds.drones_selected = true
+	else:
+		WorldBounds.drones_selected = false
 
-func action(position):
+func action(position):	
 	var space = get_world_2d().direct_space_state
 	var collision_objects = space.intersect_point(position, 15, [], 0x7FFFFFFF, true, true)
 	var enemy_unit = null
@@ -284,6 +311,10 @@ func work_units(enemy_unit):
 	for unit in selected:
 		if !enemy_unit.is_in_group("mother_brain") && unit.holding_brain():
 			continue
+		
+		if enemy_unit.is_in_group("dome") && WorldBounds.domes_sealed:
+			continue	
+		
 		unit.action_move_to(enemy_unit)
 		unit.remove_commands()
 		
@@ -308,4 +339,9 @@ func work_units_with_queue(enemy_unit):
 			break
 
 func add_to_panic(amount):
+	WorldBounds.panic_level += amount
 	hud.add_to_panic(amount)
+
+func _on_ClickSpot_animation_finished():
+	click_spot.playing = false
+	click_spot.visible = false

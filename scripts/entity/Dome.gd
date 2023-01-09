@@ -6,22 +6,80 @@ const scientist_scene = preload("res://scenes/entity/Scientist.tscn")
 const soldier_scene = preload("res://scenes/entity/Soldier.tscn")
 
 onready var animated_sprite = $AnimatedSprite
-onready var label = $Label
 onready var food_timer = $FoodTimer
 onready var food_bar = $FoodBar
+onready var turret_base = $TurretBase
+onready var vision_cone = $VisionCone
+onready var build_timer = $BuildTimer
+onready var action_timer = $ActionTimer
 
 export var population = 1
-export var max_population = 6
+export var max_population = 7
 
-var off = false
 var powered = true
 var progress = 0
+
+var pop_lights = []
+
+export var spotlight_rotation_speed = 0.2
+var spotlight_on = false
+var spotlight_build = 0
+var turret_on = false
+
+var target_drone = null
+var drones = []
+var doing_action = false
+
+var reported = []
+
+func _ready():
+	pop_lights.append($Pop1)
+	pop_lights.append($Pop2)
+	pop_lights.append($Pop3)
+	pop_lights.append($Pop4)
+	pop_lights.append($Pop5)
+	pop_lights.append($Pop6)
+	pop_lights.append($Pop7)
+	
+	vision_cone.set_as_toplevel(true)
+	vision_cone.position = position - Vector2(0, 28)
+	vision_cone.rotation = rand_range(0.0, 10.0)
+	vision_cone.z_index = 5
+	
+	build_timer.wait_time = rand_range(1.0, 3.0)
+	
+	var rng = randi() % 2
+	if rng == 0:
+		spotlight_rotation_speed = -spotlight_rotation_speed
+
+func _physics_process(delta):
+	if turret_on:
+		if drones.size() > 0:
+			vision_cone.rotation = lerp_angle(vision_cone.rotation, vision_cone.position.direction_to(drones[0].position).angle(), 0.01)
+			
+			if !doing_action:
+				target_drone = drones[0]
+				doing_action = true
+				action_timer.start()
+		else:
+			vision_cone.rotate(spotlight_rotation_speed * delta)
+	elif spotlight_on:
+		if drones.size() > 0:
+			vision_cone.rotation = lerp_angle(vision_cone.rotation, vision_cone.position.direction_to(drones[0].position).angle(), 0.01)
+			
+			if !doing_action:
+				target_drone = drones[0]
+				doing_action = true
+				action_timer.start()
+		else:
+			vision_cone.rotate(spotlight_rotation_speed * delta)
 
 func _process(delta):
 	progress = (food_timer.wait_time - food_timer.time_left) / food_timer.wait_time * food_bar.max_value
 	food_bar.value = progress
 	
-	if not off:
+	if on:
+		animated_sprite.play("powered")
 		if progress < 25:
 			animated_sprite.frame = 0
 		elif progress >= 25 && progress < 50:
@@ -30,6 +88,27 @@ func _process(delta):
 			animated_sprite.frame = 2
 		elif progress >= 75:
 			animated_sprite.frame = 3
+	else:
+		animated_sprite.play("unpowered")
+
+func turn_off():
+	.turn_off()
+	
+	for i in range(population):
+		pop_lights[i].visible = false
+		
+	food_timer.paused = true
+	food_bar.visible = false
+
+func turn_on():
+	.turn_on()
+	
+	for i in range(population):
+		pop_lights[i].visible = true
+	
+	food_timer.paused = false
+	food_timer.start()
+	food_bar.visible = true
 
 func action_done():
 	.action_done()
@@ -46,25 +125,45 @@ func action_done():
 			return
 		
 		get_parent().add_to_panic(1)
-		population -= 1
-		label.text = str(population)
+		remove_food()
+
+func turn_on_spotlight():
+	build_timer.start()
 
 func allow_drone():
-	return not off
+	return on
+
+func spawn_soldier(target):
+	var solder = soldier_scene.instance()
+	solder.position = position
+	solder.move_to_search(target)
+	get_parent().add_child(solder)
+	
+	remove_food()
 
 func spawn_colonist():
 	var colonist
 	
-	#var rng = randi() % 100
-	var rng = randi() % 2
-	if rng == 0:
-		colonist = soldier_scene.instance()
-	elif rng < 10:
+	var rng = 0
+	if WorldBounds.soldiers_spawn:
+		rng = randi() % 120
+	else:
+		rng = randi() % 100
+	if rng < 10:
 		colonist = scientist_scene.instance()
 	elif rng < 55:
-		colonist = colonist_scene.instance()
+		if WorldBounds.soldiers_replace_colonists:
+			colonist = soldier_scene.instance()
+		else:
+			colonist = colonist_scene.instance()
+	elif rng < 100:
+		if WorldBounds.soldiers_replace_colonists:
+			colonist = soldier_scene.instance()
+		else:
+			colonist = blue_colonist_scene.instance()
 	else:
-		colonist = blue_colonist_scene.instance()
+		colonist = soldier_scene.instance()
+	get_parent().add_child(colonist)	
 		
 	var domes = get_tree().get_nodes_in_group("dome")
 	domes.erase(self)
@@ -76,17 +175,80 @@ func spawn_colonist():
 	var target_dome = domes[rng]
 	
 	colonist.position = position
-	colonist.move_to_dome(target_dome)
-	get_parent().add_child(colonist)
+	
+	if colonist.is_in_group("soldier"):
+		if WorldBounds.soldiers_attack_mother:
+			colonist.attack_mother_brain()
+		elif WorldBounds.soldiers_patrol:
+			colonist.patrol()
+		else:
+			colonist.move_to_dome(target_dome)
+	else:
+		colonist.move_to_dome(target_dome)
 
-func _on_FoodTimer_timeout():
+func add_food():
 	population += 1
-	if population >= max_population:
+	if population > max_population:
 		population = max_population
 		spawn_colonist()
+	pop_lights[population - 1].visible = true
+	
+	show_action = true
+	
+func remove_food():
+	pop_lights[population - 1].visible = false
+	population -= 1
+	if population <= 0:
+		show_action = false
+
+func _on_FoodTimer_timeout():
+	add_food()
 		
-	var rng = randi() % (100 - population) + population
-	if rng == 99:
+	var rng = randi() % (8 - population)
+	if rng == 0:
 		spawn_colonist()
-		
-	label.text = str(population)
+		remove_food()
+
+func _on_VisionCone_area_entered(area):
+	if area.is_in_group("drone"):
+		drones.append(area)
+	elif area.is_in_group("colonist"):
+		if !area.alive:
+			if !area.reported:
+				area.reported = true
+				print("report colonist")
+				spawn_soldier(area.position)
+
+func _on_VisionCone_area_exited(area):
+	if area.is_in_group("drone"):
+		drones.erase(area)
+
+func _on_BuildTimer_timeout():
+	if spotlight_build == 0:
+		turret_base.visible = true
+		build_timer.start()
+		spotlight_build += 1
+	elif spotlight_build == 1:
+		$VisionCone/Turret.visible = true
+		build_timer.start()
+		spotlight_build += 1
+	elif spotlight_build == 2:
+		$VisionCone/Sprite.visible = true
+		spotlight_build += 1
+		spotlight_on = true
+	elif spotlight_build == 3:
+		$VisionCone/Turret.play("turret")
+		spotlight_build += 1
+		turret_on = true
+	elif spotlight_build == 4:
+		spotlight_build += 1
+		$Label.visible = true
+
+func _on_ActionTimer_timeout():
+	doing_action = false
+	
+	if turret_on:
+		print("shoot")
+	elif spotlight_on:
+		if drones.size() > 0 && population > 0:
+			spawn_soldier(target_drone.position)

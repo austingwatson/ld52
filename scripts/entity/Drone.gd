@@ -45,7 +45,7 @@ func _physics_process(delta):
 	
 	velocity = Vector2.ZERO
 	
-	if state == State.ActionMoving && action_target != null:
+	if state == State.ActionMoving && action_target != null && is_instance_valid(action_target):
 		target = action_target.position
 	
 	if state == State.Moving || state == State.ActionMoving:

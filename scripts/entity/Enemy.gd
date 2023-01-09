@@ -2,6 +2,7 @@ extends Area2D
 
 onready var collision_shape = $CollisionShape2D
 onready var texture_progress = $TextureProgress
+onready var action = $Action
 
 export var max_action_spots = 1
 var current_drones = []
@@ -10,6 +11,8 @@ var time_left = 0.0
 
 var action_range_radius = 0
 
+var show_action = true
+var on = true
 var alive = true
 
 func _ready():
@@ -38,10 +41,12 @@ func action_done():
 		drone.stop_action(self, action_range_radius)
 
 func turn_on():
+	on = true
 	collision_layer = 1
 	collision_mask = 1
 
 func turn_off():
+	on = false
 	collision_layer = 0
 	collision_mask = 0
 
@@ -76,3 +81,10 @@ func _on_Enemy_area_exited(area):
 	
 	if area.action_target == self:
 		area.stop_action(self, action_range_radius)
+
+func _on_Enemy_mouse_entered():
+	if WorldBounds.drones_selected && show_action:
+		action.visible = true
+
+func _on_Enemy_mouse_exited():
+	action.visible = false

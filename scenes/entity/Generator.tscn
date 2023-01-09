@@ -1,0 +1,68 @@
+[gd_scene load_steps=11 format=2]
+
+[ext_resource path="res://scenes/entity/Enemy.tscn" type="PackedScene" id=1]
+[ext_resource path="res://assets/structures/generator.png" type="Texture" id=2]
+[ext_resource path="res://scripts/entity/Generator.gd" type="Script" id=3]
+
+[sub_resource type="AtlasTexture" id=2]
+atlas = ExtResource( 2 )
+region = Rect2( 32, 0, 8, 8 )
+
+[sub_resource type="AtlasTexture" id=3]
+atlas = ExtResource( 2 )
+region = Rect2( 0, 0, 8, 8 )
+
+[sub_resource type="AtlasTexture" id=4]
+atlas = ExtResource( 2 )
+region = Rect2( 8, 0, 8, 8 )
+
+[sub_resource type="AtlasTexture" id=5]
+atlas = ExtResource( 2 )
+region = Rect2( 16, 0, 8, 8 )
+
+[sub_resource type="AtlasTexture" id=6]
+atlas = ExtResource( 2 )
+region = Rect2( 24, 0, 8, 8 )
+
+[sub_resource type="SpriteFrames" id=1]
+animations = [ {
+"frames": [ SubResource( 2 ) ],
+"loop": true,
+"name": "off",
+"speed": 5.0
+}, {
+"frames": [ SubResource( 3 ), SubResource( 4 ), SubResource( 5 ), SubResource( 6 ) ],
+"loop": true,
+"name": "on",
+"speed": 5.0
+} ]
+
+[sub_resource type="CircleShape2D" id=7]
+radius = 12.0
+
+[node name="Generator" instance=ExtResource( 1 )]
+z_index = 100
+script = ExtResource( 3 )
+max_action_spots = 2
+
+[node name="AnimatedSprite" parent="." index="0"]
+frames = SubResource( 1 )
+animation = "on"
+playing = true
+
+[node name="CollisionShape2D" parent="." index="1"]
+shape = SubResource( 7 )
+
+[node name="Action" parent="." index="3"]
+text = "Sabotage"
+
+[node name="Line2D" type="Line2D" parent="." index="4"]
+z_index = -1
+width = 2.0
+default_color = Color( 0.368627, 0.443137, 0.556863, 1 )
+
+[node name="PowerTimer" type="Timer" parent="." index="5"]
+wait_time = 5.0
+one_shot = true
+
+[connection signal="timeout" from="PowerTimer" to="." method="_on_PowerTimer_timeout"]
