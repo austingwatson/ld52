@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/scoop.mp3-11698ee90d126af18a6be37e5ea4b1bb.mp3str"
+
+[deps]
+
+source_file="res://assets/sounds/scoop.mp3"
+dest_files=[ "res://.import/scoop.mp3-11698ee90d126af18a6be37e5ea4b1bb.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0

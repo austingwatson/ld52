@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/DeathRattle_3.mp3-a7666dc5e156d438b90c07cbfe15603c.mp3str"
+
+[deps]
+
+source_file="res://assets/sounds/DeathRattle_3.mp3"
+dest_files=[ "res://.import/DeathRattle_3.mp3-a7666dc5e156d438b90c07cbfe15603c.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0
