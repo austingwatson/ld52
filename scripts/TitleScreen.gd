@@ -2,6 +2,10 @@ extends Node
 
 var music_started = false
 
+func _ready():
+	$VBoxContainer/Volume.value = AudioServer.get_bus_volume_db(SoundManager.sound_db)
+	$VBoxContainer/Music.value = AudioServer.get_bus_volume_db(SoundManager.music_db)
+
 func _input(event):
 	if !music_started:
 		music_started = true
@@ -26,3 +30,6 @@ func _on_Music_value_changed(value):
 		AudioServer.set_bus_mute(SoundManager.music_db, true)
 	else:
 		AudioServer.set_bus_mute(SoundManager.music_db, false)
+
+func _on_Tutorial_pressed():
+	get_tree().change_scene("res://scenes/ui/TutorialScene.tscn")

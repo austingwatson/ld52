@@ -4,8 +4,9 @@ const world_bounds_left = Vector2(-480, -430)
 const world_bounds_right = Vector2(480, 305)
 
 var in_world = false
+
 var panic_level = 0
-var max_panic_level = 8
+var max_panic_level = 40
 var dome_spotlight = false
 var dome_turret = false
 var soldiers_spawn = false
@@ -15,58 +16,112 @@ var soldiers_replace_colonists = false
 var domes_sealed = false
 var soldiers_attack_mother = false
 
+var noise_av = false
+var slow_av = false
+var teleport_av = false
+var dominate_av = false
+
 var drones_selected = false
 
+var play_win_cutscene = false
+var play_lost_cutscene = false
+var status = 0
+
 func _process(delta):
-	var drones = get_tree().get_nodes_in_group("drone")
-	if in_world && drones.size() == 0:
-		panic_level = max_panic_level
-	
 	var percent = float(panic_level) / float(max_panic_level) * 100
 	
 	if percent > 96:
 		if !soldiers_attack_mother:
 			soldiers_attack_mother = true
-	elif percent > 84:
+			
+			var soldiers = get_tree().get_nodes_in_group("soldier")
+			for soldier in soldiers:
+				soldier.attack_mother_brain()
+	if percent > 84:
 		if !domes_sealed:
 			domes_sealed = true
 			
 			var domes = get_tree().get_nodes_in_group("dome")
 			for dome in domes:
-				dome.turn_on_spotlight()
-	elif percent > 72:
+				dome.turn_on_spotlight(5)
+	if percent > 72:
 		if !soldiers_replace_colonists:
 			soldiers_replace_colonists = true
-	elif percent > 60:
+	if percent > 60:
 		if !dome_wall:
 			dome_wall = true
 			
 			var domes = get_tree().get_nodes_in_group("dome")
 			for dome in domes:
-				dome.turn_on_spotlight()
-	elif percent > 48:
+				dome.turn_on_spotlight(4)
+				dome.action_wait_time *= 2
+				dome.max_action_spots *= 2
+	if percent > 48:
 		if !soldiers_patrol:
 			soldiers_patrol = true
-	elif percent > 36:
+	if percent > 36:
 		if !soldiers_spawn:
 			soldiers_spawn = true
-	elif percent > 24:
+	if percent > 24:
 		if !dome_turret:
 			dome_turret = true
 			
 			var domes = get_tree().get_nodes_in_group("dome")
 			for dome in domes:
-				dome.turn_on_spotlight()
-	elif percent > 12:
+				dome.turn_on_spotlight(3)
+	if percent > 12:
 		if !dome_spotlight:
 			dome_spotlight = true
 			
 			var domes = get_tree().get_nodes_in_group("dome")
 			for dome in domes:
-				dome.turn_on_spotlight()
+				dome.turn_on_spotlight(0)
+
+func max_panic():
+	panic_level = max_panic_level
+	print("max panic")
+	return panic_level
+
+func play_text(number):
+	var dialogue = get_tree().get_nodes_in_group("dialogue")
+	dialogue[0].play_text(number)
+
+func reset():
+	in_world = false
+	
+	panic_level = 0
+	dome_spotlight = false
+	dome_turret = false
+	soldiers_spawn = false
+	soldiers_patrol = false
+	dome_wall = false
+	soldiers_replace_colonists = false
+	domes_sealed = false
+	soldiers_attack_mother = false
+
+	noise_av = false
+	slow_av = false
+	teleport_av = false
+	dominate_av = false
+
+	drones_selected = false
+
+	play_win_cutscene = false
+	play_lost_cutscene = false
+	status = 0
 
 func lose():
-	print("you lose")
+	status = 1
+	if !play_lost_cutscene:
+		play_text(6)
+		var world = get_tree().get_nodes_in_group("world")
+		world[0].start_lost_cutscene()
+		play_lost_cutscene = true
 	
 func win():
-	print("you win")
+	status = 2
+	if !play_win_cutscene:
+		play_text(7)
+		var world = get_tree().get_nodes_in_group("world")
+		world[0].start_win_cutscene()
+		play_win_cutscene = true

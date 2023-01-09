@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/main_menu_background.png-b4323823696bbd078e93a7a4ca70ae1e.stex"
+path="res://.import/sky_bar.png-089193629a70393f4c7e759ae47574fc.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/main_menu_background.png"
-dest_files=[ "res://.import/main_menu_background.png-b4323823696bbd078e93a7a4ca70ae1e.stex" ]
+source_file="res://assets/ui/sky_bar.png"
+dest_files=[ "res://.import/sky_bar.png-089193629a70393f4c7e759ae47574fc.stex" ]
 
 [params]
 

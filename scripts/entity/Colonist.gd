@@ -8,6 +8,7 @@ onready var search_timer = $SearchTimer
 onready var idle_timer = $IdleTimer
 onready var harvest_effect = $HarvestEffect
 onready var alert = $Alert
+onready var force_home_timer = $ForceHome
 
 var current_action = 0
 
@@ -15,6 +16,7 @@ var colonist_target = null
 var dome_target = null
 var target = Vector2.ZERO
 const target_max = 1.0
+const noise_target_max = 30.0
 
 var velocity = Vector2.ZERO
 export var speed = 20
@@ -30,6 +32,8 @@ var in_action = false
 var reported = false
 var killed = false
 
+var force_home = false
+
 enum PanicState {
 	Calm,
 	Panic,
@@ -41,7 +45,8 @@ enum State {
 	Idle,
 	Moving,
 	MoveSearch,
-	Searching
+	Searching,
+	MoveNoise
 }
 var state = State.Idle
 
@@ -55,10 +60,16 @@ func _physics_process(delta):
 	if not alive:
 		rotation_degrees = 0
 		return
+	if in_action:
+		return
 	
 	velocity = Vector2.ZERO
-	if state == State.Moving || panic_state == PanicState.Panic || state == State.MoveSearch:
+	if state == State.Moving || panic_state == PanicState.Panic || state == State.MoveSearch || state == State.MoveNoise:
 		move(delta)
+	elif state == State.Idle:
+		if !force_home:
+			force_home = true
+			force_home_timer.start()
 	
 	vision_cone.position = position
 	
@@ -66,6 +77,9 @@ func _physics_process(delta):
 		rotation_degrees = 0
 
 func move(delta):
+	if slowed:
+		delta *= 0.25
+	
 	var direction = position.direction_to(target)
 		
 	if direction.x >= 0:
@@ -86,8 +100,11 @@ func move(delta):
 		state = State.Idle
 		
 	vision_cone.rotation = direction.angle() + rotation
-		
-	if position.distance_to(target) <= target_max:
+	
+	if state == State.MoveNoise && position.distance_to(target) <= noise_target_max:
+		idle_timer.start()
+		state = State.Idle
+	elif position.distance_to(target) <= target_max:
 		if panic_state == PanicState.Panic:
 			get_parent().add_to_panic(1)
 			if colonist_target != null && is_instance_valid(colonist_target):
@@ -101,7 +118,7 @@ func move(delta):
 		if dome_target != null:
 			dome_target.add_food()
 			queue_free()
-			
+				
 	if rotation_direction == 0:
 		rotation_degrees += rotation_speed * delta
 		if rotation_degrees >= max_rotation:
@@ -144,7 +161,7 @@ func action_done():
 	elif current_action == 1:
 		for drone in current_drones:
 			if drone.give_brain():
-				SoundManager.play_harvest()
+				SoundManager.play_harvest(0)
 				brains -= 1
 				harvest_effect.play("default")
 				harvest_effect.visible = true
@@ -166,6 +183,13 @@ func move_to_dome(dome_target):
 	self.dome_target = dome_target
 	target = self.dome_target.position
 	state = State.Moving
+
+func move_to_noise(position):
+	self.target = position
+	state = State.MoveNoise
+	dome_target = null
+	panic_state = PanicState.Calm
+	alert.visible = false
 	
 func action_start():
 	in_action = true
@@ -203,6 +227,9 @@ func go_to_closest_dome():
 		dome_target = closest_dome
 
 func _on_SearchTimer_timeout():
+	if state == State.MoveNoise:
+		return
+	
 	panic_state = PanicState.Panic
 	animated_sprite.play("panic")
 	alert.play("panic")
@@ -256,3 +283,8 @@ func _on_Colonist_area_exited(area):
 
 func _on_HarvestEffect_animation_finished():
 	harvest_effect.visible = false
+
+func _on_ForceHome_timeout():
+	force_home = false
+	go_to_closest_dome()
+	state = State.Moving

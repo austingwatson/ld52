@@ -99,12 +99,19 @@ func _physics_process(delta):
 	if velocity.length() == 0:
 		rotation_degrees = 0
 
+func switch_frames(frames):
+	animated_sprite.frames = frames
+
 func hurt():
+	if WorldBounds.play_win_cutscene || WorldBounds.play_lost_cutscene:
+		return
+	
 	SoundManager.play_gun_shot()
 	hit.play("default")
 	hit.visible = true
 	health -= 1
 	if health <= 0:
+		WorldBounds.play_text(3)
 		get_parent().remove_from_selected(self)
 		queue_free()
 
@@ -121,6 +128,8 @@ func in_action():
 	state = State.Action
 	animated_sprite.play("action")
 	
+	interaction_line.clear_points()
+	
 	if action_target != null && is_instance_valid(action_target):
 		interaction_line.add_point(position)
 		interaction_line.add_point(action_target.position)
@@ -134,6 +143,9 @@ func in_action():
 					attack.position = Vector2(-7, 0)
 				else:
 					attack.position = Vector2(7, 0)
+
+func stop():
+	state = State.Idle
 	
 func stop_action(enemy, enemy_min_distance):
 	state = State.Idle
@@ -144,6 +156,9 @@ func stop_action(enemy, enemy_min_distance):
 	
 	interaction_line.clear_points()
 
+func action_interuppted():
+	interaction_line.clear_points()
+
 func holding_brain():
 	return brain.visible
 
@@ -151,6 +166,7 @@ func give_brain():
 	if brain.visible:
 		return false
 	else:
+		WorldBounds.play_text(1)
 		animation_player.play("plus_brain")
 		brain.visible = true
 		return true

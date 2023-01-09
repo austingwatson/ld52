@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://assets/ui/main_menu_background.png" type="Texture" id=1]
 [ext_resource path="res://assets/ui/button_pressed.png" type="Texture" id=2]
@@ -7,8 +7,10 @@
 [ext_resource path="res://assets/ui/brain_inventory.png" type="Texture" id=5]
 [ext_resource path="res://scripts/TitleScreen.gd" type="Script" id=6]
 [ext_resource path="res://assets/sounds/main_loop.wav" type="AudioStream" id=7]
+[ext_resource path="res://assets/ui/title_thumbnail.png" type="Texture" id=8]
+[ext_resource path="res://assets/ui/sky_bar.png" type="Texture" id=9]
 
-[sub_resource type="DynamicFont" id=1]
+[sub_resource type="DynamicFont" id=3]
 outline_size = 1
 outline_color = Color( 0, 0, 0, 1 )
 font_data = ExtResource( 4 )
@@ -17,7 +19,7 @@ font_data = ExtResource( 4 )
 texture = ExtResource( 3 )
 region_rect = Rect2( 0, 0, 98, 20 )
 
-[sub_resource type="StyleBoxTexture" id=3]
+[sub_resource type="StyleBoxTexture" id=5]
 texture = ExtResource( 2 )
 region_rect = Rect2( 0, 0, 98, 20 )
 
@@ -28,28 +30,27 @@ region_rect = Rect2( 0, 0, 98, 20 )
 [node name="TitleScreen" type="Node"]
 script = ExtResource( 6 )
 
-[node name="ColorRect" type="ColorRect" parent="."]
-margin_right = 480.0
-margin_bottom = 270.0
-color = Color( 0.690196, 0.356863, 0.172549, 1 )
-
-[node name="Sprite" type="Sprite" parent="."]
-position = Vector2( 160, 7 )
-texture = ExtResource( 1 )
-centered = false
+[node name="Sprite3" type="Sprite" parent="."]
+position = Vector2( 240, 7 )
+texture = ExtResource( 9 )
 
 [node name="Sprite2" type="Sprite" parent="."]
-position = Vector2( -160, 7 )
+position = Vector2( -160, 14 )
 texture = ExtResource( 1 )
 centered = false
 flip_h = true
 
+[node name="Sprite" type="Sprite" parent="."]
+position = Vector2( 90, 14 )
+texture = ExtResource( 8 )
+centered = false
+
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 anchor_bottom = 1.0
-margin_left = 64.0
-margin_top = 64.0
-margin_right = 162.0
-margin_bottom = 64.0
+margin_left = 44.0
+margin_top = 76.0
+margin_right = 142.0
+margin_bottom = 76.0
 
 [node name="Play" type="TextureButton" parent="VBoxContainer"]
 margin_right = 98.0
@@ -66,18 +67,38 @@ margin_left = -49.0
 margin_top = -10.0
 margin_right = 49.0
 margin_bottom = 10.0
-custom_fonts/font = SubResource( 1 )
+custom_fonts/font = SubResource( 3 )
 text = "Play"
 align = 1
 
-[node name="Volume" type="HSlider" parent="VBoxContainer"]
+[node name="Tutorial" type="TextureButton" parent="VBoxContainer"]
 margin_top = 24.0
 margin_right = 98.0
 margin_bottom = 44.0
+texture_normal = ExtResource( 3 )
+texture_hover = ExtResource( 2 )
+
+[node name="Label" type="Label" parent="VBoxContainer/Tutorial"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -49.0
+margin_top = -10.0
+margin_right = 49.0
+margin_bottom = 10.0
+custom_fonts/font = SubResource( 3 )
+text = "Tutorial"
+align = 1
+
+[node name="Volume" type="HSlider" parent="VBoxContainer"]
+margin_top = 48.0
+margin_right = 98.0
+margin_bottom = 68.0
 custom_icons/grabber_highlight = ExtResource( 5 )
 custom_icons/grabber = ExtResource( 5 )
 custom_styles/slider = SubResource( 2 )
-custom_styles/grabber_area_highlight = SubResource( 3 )
+custom_styles/grabber_area_highlight = SubResource( 5 )
 custom_styles/grabber_area = SubResource( 4 )
 min_value = -60.0
 max_value = 0.0
@@ -85,18 +106,18 @@ max_value = 0.0
 [node name="Label" type="Label" parent="VBoxContainer/Volume"]
 margin_right = 98.0
 margin_bottom = 20.0
-custom_fonts/font = SubResource( 1 )
+custom_fonts/font = SubResource( 3 )
 text = "Volume"
 align = 1
 
 [node name="Music" type="HSlider" parent="VBoxContainer"]
-margin_top = 48.0
+margin_top = 72.0
 margin_right = 98.0
-margin_bottom = 68.0
+margin_bottom = 92.0
 custom_icons/grabber_highlight = ExtResource( 5 )
 custom_icons/grabber = ExtResource( 5 )
 custom_styles/slider = SubResource( 2 )
-custom_styles/grabber_area_highlight = SubResource( 3 )
+custom_styles/grabber_area_highlight = SubResource( 5 )
 custom_styles/grabber_area = SubResource( 4 )
 min_value = -60.0
 max_value = 0.0
@@ -104,14 +125,14 @@ max_value = 0.0
 [node name="Label" type="Label" parent="VBoxContainer/Music"]
 margin_right = 98.0
 margin_bottom = 20.0
-custom_fonts/font = SubResource( 1 )
+custom_fonts/font = SubResource( 3 )
 text = "Music"
 align = 1
 
 [node name="Exit" type="TextureButton" parent="VBoxContainer"]
-margin_top = 72.0
+margin_top = 96.0
 margin_right = 98.0
-margin_bottom = 92.0
+margin_bottom = 116.0
 texture_normal = ExtResource( 3 )
 texture_hover = ExtResource( 2 )
 
@@ -124,7 +145,7 @@ margin_left = -49.0
 margin_top = -10.0
 margin_right = 49.0
 margin_bottom = 10.0
-custom_fonts/font = SubResource( 1 )
+custom_fonts/font = SubResource( 3 )
 text = "Exit"
 align = 1
 
@@ -133,6 +154,7 @@ stream = ExtResource( 7 )
 bus = "Music"
 
 [connection signal="pressed" from="VBoxContainer/Play" to="." method="_on_Play_pressed"]
+[connection signal="pressed" from="VBoxContainer/Tutorial" to="." method="_on_Tutorial_pressed"]
 [connection signal="value_changed" from="VBoxContainer/Volume" to="." method="_on_Volume_value_changed"]
 [connection signal="value_changed" from="VBoxContainer/Music" to="." method="_on_Music_value_changed"]
 [connection signal="pressed" from="VBoxContainer/Exit" to="." method="_on_Exit_pressed"]

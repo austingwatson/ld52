@@ -1,0 +1,67 @@
+[gd_scene load_steps=9 format=2]
+
+[ext_resource path="res://scripts/Powers.gd" type="Script" id=1]
+[ext_resource path="res://assets/effects/psychic_pulse_sheet.png" type="Texture" id=2]
+
+[sub_resource type="AtlasTexture" id=9]
+atlas = ExtResource( 2 )
+region = Rect2( 0, 0, 64, 64 )
+
+[sub_resource type="AtlasTexture" id=10]
+atlas = ExtResource( 2 )
+region = Rect2( 64, 0, 64, 64 )
+
+[sub_resource type="AtlasTexture" id=11]
+atlas = ExtResource( 2 )
+region = Rect2( 128, 0, 64, 64 )
+
+[sub_resource type="AtlasTexture" id=12]
+atlas = ExtResource( 2 )
+region = Rect2( 192, 0, 64, 64 )
+
+[sub_resource type="AtlasTexture" id=13]
+atlas = ExtResource( 2 )
+region = Rect2( 256, 0, 64, 64 )
+
+[sub_resource type="SpriteFrames" id=8]
+animations = [ {
+"frames": [ SubResource( 9 ), SubResource( 10 ), SubResource( 11 ), SubResource( 12 ), SubResource( 13 ) ],
+"loop": true,
+"name": "default",
+"speed": 5.0
+} ]
+
+[node name="Powers" type="Node2D"]
+script = ExtResource( 1 )
+noise_range = 150
+
+[node name="NoiseTimer" type="Timer" parent="."]
+one_shot = true
+
+[node name="TeleportTimer" type="Timer" parent="."]
+one_shot = true
+
+[node name="DominateTimer" type="Timer" parent="."]
+one_shot = true
+
+[node name="SlowTimer" type="Timer" parent="."]
+one_shot = true
+
+[node name="Timer4" type="Timer" parent="."]
+
+[node name="Pulse" type="AnimatedSprite" parent="."]
+visible = false
+z_index = 1
+frames = SubResource( 8 )
+speed_scale = 2.0
+
+[node name="ManaTimer" type="Timer" parent="."]
+wait_time = 10.0
+autostart = true
+
+[connection signal="timeout" from="NoiseTimer" to="." method="_on_NoiseTimer_timeout"]
+[connection signal="timeout" from="TeleportTimer" to="." method="_on_TeleportTimer_timeout"]
+[connection signal="timeout" from="DominateTimer" to="." method="_on_DominateTimer_timeout"]
+[connection signal="timeout" from="SlowTimer" to="." method="_on_SlowTimer_timeout"]
+[connection signal="animation_finished" from="Pulse" to="." method="_on_Pulse_animation_finished"]
+[connection signal="timeout" from="ManaTimer" to="." method="_on_ManaTimer_timeout"]

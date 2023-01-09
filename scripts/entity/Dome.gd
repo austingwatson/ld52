@@ -12,6 +12,9 @@ onready var turret_base = $TurretBase
 onready var vision_cone = $VisionCone
 onready var build_timer = $BuildTimer
 onready var action_timer = $ActionTimer
+onready var turret = $VisionCone/Turret
+onready var vision_light = $VisionCone/VisionLight
+onready var dome_wall = $DomeWall
 
 export var population = 1
 export var max_population = 7
@@ -51,11 +54,26 @@ func _ready():
 	var rng = randi() % 2
 	if rng == 0:
 		spotlight_rotation_speed = -spotlight_rotation_speed
+		
+	rng = randi() % 5
+	for i in range(rng):
+		add_food()
+		
+	rng = randi() % 4
+	if rng == 0:
+		spawn_colonist()
+		remove_food()
 
 func _physics_process(delta):
+	if !on:
+		return
+		
+	if slowed:
+		delta *= 0.25
+	
 	if turret_on:
 		if drones.size() > 0:
-			vision_cone.rotation = lerp_angle(vision_cone.rotation, vision_cone.position.direction_to(drones[0].position).angle(), 0.01)
+			vision_cone.rotation = lerp_angle(vision_cone.rotation, vision_cone.position.direction_to(drones[0].position).angle(), 1 * delta)
 			
 			if !doing_action:
 				target_drone = drones[0]
@@ -65,7 +83,7 @@ func _physics_process(delta):
 			vision_cone.rotate(spotlight_rotation_speed * delta)
 	elif spotlight_on:
 		if drones.size() > 0:
-			vision_cone.rotation = lerp_angle(vision_cone.rotation, vision_cone.position.direction_to(drones[0].position).angle(), 0.01)
+			vision_cone.rotation = lerp_angle(vision_cone.rotation, vision_cone.position.direction_to(drones[0].position).angle(), 1 * delta)
 			
 			if !doing_action:
 				target_drone = drones[0]
@@ -99,6 +117,9 @@ func turn_off():
 		
 	food_timer.paused = true
 	food_bar.visible = false
+	
+	turret.frame = 1
+	vision_light.visible = false
 
 func turn_on():
 	.turn_on()
@@ -109,6 +130,11 @@ func turn_on():
 	food_timer.paused = false
 	food_timer.start()
 	food_bar.visible = true
+	
+	turret.frame = 0
+	
+	if spotlight_build > 2:
+		vision_light.visible = true
 
 func action_done():
 	.action_done()
@@ -119,6 +145,7 @@ func action_done():
 		for drone in current_drones:
 			if drone.give_brain():
 				brain_given = true
+				SoundManager.play_harvest(1)
 				break
 		
 		if not brain_given:
@@ -127,8 +154,9 @@ func action_done():
 		get_parent().add_to_panic(1)
 		remove_food()
 
-func turn_on_spotlight():
+func turn_on_spotlight(build):
 	build_timer.start()
+	spotlight_build = build
 
 func allow_drone():
 	return on
@@ -229,25 +257,59 @@ func _on_BuildTimer_timeout():
 		build_timer.start()
 		spotlight_build += 1
 	elif spotlight_build == 1:
-		$VisionCone/Turret.visible = true
+		turret.visible = true
 		build_timer.start()
 		spotlight_build += 1
+		
+		turret_base.visible = true
 	elif spotlight_build == 2:
-		$VisionCone/Sprite.visible = true
-		spotlight_build += 1
+		vision_light.visible = true
 		spotlight_on = true
+		
+		turret_base.visible = true
+		turret.visible = true
 	elif spotlight_build == 3:
-		$VisionCone/Turret.play("turret")
-		spotlight_build += 1
+		turret.play("turret")
+		turret.playing = false
+		turret.frame = 0
 		turret_on = true
+		
+		vision_light.visible = true
+		turret_base.visible = true
+		turret.visible = true
 	elif spotlight_build == 4:
-		spotlight_build += 1
-		$DomeWall.play("partial")
-		$DomeWall.visible = true
+		dome_wall.play("partial")
+		dome_wall.visible = true
+		
+		turret.play("turret")
+		turret.playing = false
+		turret.frame = 0
+		turret_on = true
+		vision_light.visible = true
+		turret_base.visible = true
+		turret.visible = true
 	elif spotlight_build == 5:
-		spotlight_build += 1
-		$DomeWall.play("full")
-		$DomeWall.visible = true
+		dome_wall.play("full")
+		dome_wall.visible = true
+		
+		turret.play("turret")
+		turret.playing = false
+		turret.frame = 0
+		turret_on = true
+		vision_light.visible = true
+		turret_base.visible = true
+		turret.visible = true
+	else:
+		turret.play("turret")
+		turret.playing = false
+		turret.frame = 0
+		turret_on = true
+		vision_light.visible = true
+		turret_base.visible = true
+		turret.visible = true
+		dome_wall.play("full")
+		dome_wall.visible = true
+		dome_wall.frame = 1
 
 func _on_ActionTimer_timeout():
 	doing_action = false

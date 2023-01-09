@@ -4,13 +4,12 @@ onready var camera = $Camera2D
 onready var cloud_layer = $ParallaxBackground/ParallaxLayer
 onready var hud = $Hud
 onready var click_spot = $ClickSpot
+onready var mother_brain = $MotherBrain
 
 const dome_scene = preload("res://scenes/entity/Dome.tscn")
 const drone_scene = preload("res://scenes/entity/Drone.tscn")
 const path_texture = preload("res://assets/structures/path.png")
 const generator_scene = preload("res://scenes/entity/Generator.tscn")
-
-export(float) var cloud_speed = -5
 
 # variables to show the selection rectangle
 # and query the physics engine for selected units
@@ -20,27 +19,27 @@ var drag_start := Vector2.ZERO
 var select_rect := RectangleShape2D.new()
 var select_query := Physics2DShapeQueryParameters.new()
 
-export var camera_speed_keys := 100
+export var camera_speed_keys := 200
 var camera_movement := [false, false, false, false]
 
 var zoom_min = 0.25
 var zoom_max = 2
-
-var drag_screen = false
-var old_mouse_pos = Vector2.ZERO
 
 # variables to drag the camera based on if the
 # mouse is near the screen edges
 var mouse_in_screen := false
 var mouse_pos := Vector2.ZERO
 export(float, 1.0) var screen_margin = 0.1
-export var camera_speed_edge = 100
+export var camera_speed_edge = 150
 var screen_margin_up := 0.0
 var screen_margin_left := 0.0
 var screen_margin_down := 0.0
 var screen_margin_right := 0.0
 
 var queue_modifier = false
+
+var mother_ship_accel = 5.0
+var start_lose_timer = false
 
 func _ready():
 	select_query.collide_with_bodies = false
@@ -55,6 +54,9 @@ func _ready():
 	generate_map(5)
 
 func _unhandled_input(event):
+	if WorldBounds.play_win_cutscene || WorldBounds.play_lost_cutscene:
+		return
+	
 	# if mouse 1 is down start showing the rectagnle
 	if event.is_action_pressed("select_units"):
 		dragging = true
@@ -113,10 +115,7 @@ func _unhandled_input(event):
 			camera.zoom = Vector2(zoom_max, zoom_max)
 	
 	elif event.is_action_pressed("drag_screen"):
-		old_mouse_pos = get_viewport().get_mouse_position()
-		drag_screen = true
-	elif event.is_action_released("drag_screen"):
-		drag_screen = false
+		camera.position = get_global_mouse_position()
 	
 	elif event.is_action_pressed("shift"):
 		queue_modifier = true
@@ -134,10 +133,33 @@ func _unhandled_input(event):
 		mouse_pos = event.position
 		
 func _physics_process(delta):
-	#cloud_layer.motion_offset.x += cloud_speed * delta
-	pass
+	if WorldBounds.play_win_cutscene:
+		mother_brain.position.y -= mother_ship_accel * delta
+		mother_ship_accel += 0.5
+		
+		if mother_brain.position.y < -650:
+			get_tree().change_scene("res://scenes/GameOverScreen.tscn")
+	elif WorldBounds.play_lost_cutscene:
+		var dir = camera.position.direction_to(mother_brain.position)
+		if camera.position.distance_to(mother_brain.position) <= 1.0:
+			if !start_lose_timer:
+				start_lose_timer = true
+				$LoseTimer.start()
+		else:
+			camera.position += dir * delta * 50
 		
 func _process(delta):
+	var drones = get_tree().get_nodes_in_group("drone")
+	if drones.size() < 1:
+		WorldBounds.play_text(5)
+		var panic = WorldBounds.max_panic()
+		hud.set_panic(panic)
+	elif drones.size() < 4:
+		WorldBounds.play_text(4)
+	
+	if WorldBounds.play_win_cutscene || WorldBounds.play_lost_cutscene:
+		return
+	
 	if dragging:
 		update()
 		
@@ -160,12 +182,6 @@ func _process(delta):
 			camera.position.y += camera_speed_edge * delta
 		if mouse_pos.x >= screen_margin_right:
 			camera.position.x += camera_speed_edge * delta
-	
-	if drag_screen:
-		var mouse_pos = get_viewport().get_mouse_position()
-		var mouse_delta = mouse_pos - old_mouse_pos
-		old_mouse_pos = mouse_pos
-		camera.position += mouse_delta
 		
 func _draw():
 	if dragging:
@@ -181,7 +197,7 @@ func _notification(what):
 func generate_map(difficulty):
 	randomize()
 	
-	for i in range(difficulty):
+	for i in range(difficulty * 3 + 1):
 		var drone = drone_scene.instance()
 		drone.position = Vector2(i * 16 - 100, -315)
 		add_child(drone)
@@ -258,6 +274,23 @@ func generate_map(difficulty):
 		drone.position.x += rx + 70
 		
 	WorldBounds.in_world = true
+
+func start_win_cutscene():
+	mother_brain.start_boosters()
+	
+	camera.position = mother_brain.position
+	camera.zoom = Vector2(1, 1)
+	
+	var drones = get_tree().get_nodes_in_group("drone")
+	for drone in drones:
+		drone.stop()
+
+func start_lost_cutscene():
+	camera.zoom = Vector2(1, 1)
+	
+	var drones = get_tree().get_nodes_in_group("drone")
+	for drone in drones:
+		drone.stop()
 
 # query the physics engine based on the rectangle created
 func select_units(drag_end):
@@ -345,10 +378,19 @@ func work_units_with_queue(enemy_unit):
 		if amount >= enemy_unit.max_action_spots:
 			break
 
+func get_selected():
+	return selected
+
 func add_to_panic(amount):
 	WorldBounds.panic_level += amount
 	hud.add_to_panic(amount)
 
+func add_to_mana(amount):
+	hud.add_to_mana(amount)
+
 func _on_ClickSpot_animation_finished():
 	click_spot.playing = false
 	click_spot.visible = false
+
+func _on_LoseTimer_timeout():
+	get_tree().change_scene("res://scenes/GameOverScreen.tscn")

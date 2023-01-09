@@ -1,7 +1,11 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://assets/units/colonist_2.png" type="Texture" id=1]
 [ext_resource path="res://scenes/entity/Colonist.tscn" type="PackedScene" id=2]
+
+[sub_resource type="AtlasTexture" id=6]
+atlas = ExtResource( 1 )
+region = Rect2( 8, 0, 8, 8 )
 
 [sub_resource type="AtlasTexture" id=1]
 atlas = ExtResource( 1 )
@@ -17,6 +21,11 @@ region = Rect2( 8, 0, 8, 8 )
 
 [sub_resource type="SpriteFrames" id=4]
 animations = [ {
+"frames": [ SubResource( 6 ) ],
+"loop": true,
+"name": "action",
+"speed": 5.0
+}, {
 "frames": [ SubResource( 1 ) ],
 "loop": true,
 "name": "alive",
@@ -44,3 +53,6 @@ frames = SubResource( 4 )
 
 [node name="CollisionShape2D" parent="." index="1"]
 shape = SubResource( 5 )
+
+[node name="Alert" parent="." index="8"]
+frame = 0

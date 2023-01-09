@@ -10,6 +10,8 @@ var death_rattle_4: AudioStreamPlayer
 var gun_shot: AudioStreamPlayer
 var harvest_saw: AudioStreamPlayer
 var scoop: AudioStreamPlayer
+var hurray: AudioStreamPlayer
+var physic: AudioStreamPlayer
 
 func _ready():
 	music_db = AudioServer.get_bus_index("Music")
@@ -50,6 +52,16 @@ func _ready():
 	scoop.bus = "Sound"
 	add_child(scoop)
 	
+	hurray = AudioStreamPlayer.new()
+	hurray.stream = preload("res://assets/sounds/hurray.wav")
+	hurray.bus = "Sound"
+	add_child(hurray)
+	
+	physic = AudioStreamPlayer.new()
+	physic.stream = preload("res://assets/sounds/psychic_pulse.wav")
+	physic.bus = "Sound"
+	add_child(physic)
+	
 func play_death_sound():
 	var rng = randi() % 4
 	match rng:
@@ -67,10 +79,13 @@ func play_death_sound():
 				death_rattle_4.play()
 			
 func play_gun_shot():
-	if !gun_shot.playing:
-		gun_shot.play()
+	gun_shot.play()
 
-func play_harvest():
+func play_harvest(number):
+	if number > 0:
+		if !harvest_saw.playing:
+			harvest_saw.play()
+		return
 	var rng = randi() % 2
 	match rng:
 		0:
@@ -79,3 +94,11 @@ func play_harvest():
 		1:	
 			if !scoop.playing:
 				scoop.play()
+
+func play_hurray():
+	if !hurray.playing:
+		hurray.play()
+		
+func play_physic():
+	if !physic.playing:
+		physic.play()

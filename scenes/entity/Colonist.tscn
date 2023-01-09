@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=2]
+[gd_scene load_steps=26 format=2]
 
 [ext_resource path="res://scenes/entity/Enemy.tscn" type="PackedScene" id=1]
 [ext_resource path="res://scripts/entity/Colonist.gd" type="Script" id=2]
@@ -9,6 +9,10 @@
 [ext_resource path="res://assets/ui/question_animated.png" type="Texture" id=7]
 [ext_resource path="res://assets/ui/action_bar_empty_small.png" type="Texture" id=8]
 [ext_resource path="res://assets/ui/action_bar_full_small.png" type="Texture" id=9]
+
+[sub_resource type="AtlasTexture" id=18]
+atlas = ExtResource( 3 )
+region = Rect2( 8, 0, 8, 8 )
 
 [sub_resource type="AtlasTexture" id=4]
 atlas = ExtResource( 3 )
@@ -24,6 +28,11 @@ region = Rect2( 8, 0, 8, 8 )
 
 [sub_resource type="SpriteFrames" id=7]
 animations = [ {
+"frames": [ SubResource( 18 ) ],
+"loop": true,
+"name": "action",
+"speed": 5.0
+}, {
 "frames": [ SubResource( 4 ) ],
 "loop": true,
 "name": "alive",
@@ -99,7 +108,9 @@ animations = [ {
 
 [node name="Colonist" groups=["colonist"] instance=ExtResource( 1 )]
 script = ExtResource( 2 )
-speed = 20
+max_action_spots = 2
+action_wait_time = 10.0
+speed = 10
 min_rotation = -5.0
 max_rotation = 5.0
 rotation_speed = 40.0
@@ -156,6 +167,10 @@ animation = "spotted"
 frame = 1
 playing = true
 
+[node name="ForceHome" type="Timer" parent="." index="9"]
+wait_time = 30.0
+one_shot = true
+
 [connection signal="area_entered" from="." to="." method="_on_Colonist_area_entered"]
 [connection signal="area_exited" from="." to="." method="_on_Colonist_area_exited"]
 [connection signal="area_entered" from="VisionCone" to="." method="_on_VisionCone_area_entered"]
@@ -163,3 +178,4 @@ playing = true
 [connection signal="timeout" from="SearchTimer" to="." method="_on_SearchTimer_timeout"]
 [connection signal="timeout" from="IdleTimer" to="." method="_on_IdleTimer_timeout"]
 [connection signal="animation_finished" from="HarvestEffect" to="." method="_on_HarvestEffect_animation_finished"]
+[connection signal="timeout" from="ForceHome" to="." method="_on_ForceHome_timeout"]

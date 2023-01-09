@@ -6,7 +6,7 @@ onready var hurt_node = $Hurt
 onready var animation_player = $AnimationPlayer
 
 var brains = 0
-export var brains_needed = 5
+export var brains_needed = 40
 var health = 100
 var total_health = health
 
@@ -19,16 +19,22 @@ func action_done():
 	
 	for drone in current_drones:
 		if drone.brain.visible:
+			WorldBounds.play_text(2)
 			animation_player.play("plus_brain")
 			brains += 1
 			drone.brain.visible = false
 			calculate_stage()
+			SoundManager.play_hurray()
+
+func start_boosters():
+	$Boosters.visible = true
 
 func hurt():
+	if WorldBounds.play_win_cutscene || WorldBounds.play_lost_cutscene:
+		return
+	
 	SoundManager.play_gun_shot()
 	health -= 1
-	
-	print(float(health) )
 	
 	if float(health) / float(total_health) <= 0.1:
 		hurt_node.frame = 2
@@ -52,11 +58,15 @@ func calculate_stage():
 		animated_sprite.play("stage6")
 	elif percent >= 68:
 		animated_sprite.play("stage5")
+		WorldBounds.dominate_av = true
 	elif percent >= 51:
 		animated_sprite.play("stage4")
+		WorldBounds.teleport_av = true
 	elif percent >= 34:
 		animated_sprite.play("stage3")
+		WorldBounds.slow_av = true
 	elif percent >= 17:
 		animated_sprite.play("stage2")
+		WorldBounds.noise_av = true
 	else:
 		animated_sprite.play("stage1")

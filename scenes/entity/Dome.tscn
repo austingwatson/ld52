@@ -112,6 +112,7 @@ animations = [ {
 z_index = 2
 script = ExtResource( 2 )
 max_action_spots = 4
+action_wait_time = 35.0
 population = 1
 max_population = 7
 spotlight_rotation_speed = 0.2
@@ -137,7 +138,7 @@ margin_right = 16.0
 margin_bottom = -24.0
 
 [node name="FoodTimer" type="Timer" parent="." index="4"]
-wait_time = 5.0
+wait_time = 30.0
 autostart = true
 
 [node name="FoodBar" type="TextureProgress" parent="." index="5"]
@@ -208,7 +209,7 @@ visible = false
 frames = SubResource( 15 )
 animation = "spotlight"
 
-[node name="Sprite" type="Sprite" parent="VisionCone" index="2"]
+[node name="VisionLight" type="Sprite" parent="VisionCone" index="2"]
 visible = false
 modulate = Color( 1, 1, 1, 0.196078 )
 position = Vector2( 85, 0 )

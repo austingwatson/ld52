@@ -46,6 +46,7 @@ radius = 12.0
 z_index = 100
 script = ExtResource( 3 )
 max_action_spots = 2
+action_wait_time = 25.0
 
 [node name="AnimatedSprite" parent="." index="0"]
 frames = SubResource( 1 )
@@ -72,7 +73,7 @@ width = 2.0
 default_color = Color( 0.368627, 0.443137, 0.556863, 1 )
 
 [node name="PowerTimer" type="Timer" parent="." index="5"]
-wait_time = 5.0
+wait_time = 35.0
 one_shot = true
 
 [connection signal="timeout" from="PowerTimer" to="." method="_on_PowerTimer_timeout"]

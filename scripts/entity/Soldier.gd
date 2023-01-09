@@ -106,7 +106,8 @@ func _physics_process(delta):
 			if is_instance_valid(drone_target):
 				target = drone_target.position
 				vision_cone.rotation = position.direction_to(target).angle()
-				shoot()
+				if can_shoot:
+					shoot()
 			else:
 				fight_state = FightState.Guard
 	
@@ -169,6 +170,8 @@ func patrol():
 	fight_state = FightState.Patrol
 
 func _on_SearchTimer_timeout():
+	alert.visible = false
+	
 	if suspect == 1:
 		fight_state = FightState.GuardMoving
 		if !is_instance_valid(colonist_to_drag):
@@ -190,8 +193,11 @@ func _on_VisionCone_area_entered(area):
 			drone_target = area
 			fight_state = FightState.Pursue
 			dome_target = null
-			shoot()
+			if can_shoot:
+				shoot()
 		elif state != State.Searching:
+			alert.play("spotted")
+			alert.visible = true
 			drone_target = area
 			state = State.Searching
 			search_timer.start()
@@ -207,6 +213,8 @@ func _on_VisionCone_area_entered(area):
 				return
 			
 			if state != State.Searching:
+				alert.play("spotted")
+				alert.visible = true
 				target = area.position
 				guard_start_position = position
 				colonist_to_drag = area

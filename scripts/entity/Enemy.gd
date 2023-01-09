@@ -15,6 +15,8 @@ var show_action = true
 var on = true
 var alive = true
 
+var slowed = false
+
 func _ready():
 	if collision_shape.shape is CircleShape2D:
 		action_range_radius = collision_shape.shape.radius
@@ -74,10 +76,12 @@ func _on_Enemy_area_exited(area):
 	if not area.is_in_group("drone"):
 		return
 	
+	area.action_interuppted()
 	current_drones.erase(area)
 	if current_drones.size() == 0:
 		action_interuppted()
 		texture_progress.visible = false
+		
 	
 	if area.action_target == self:
 		area.stop_action(self, action_range_radius)
