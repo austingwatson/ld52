@@ -6,7 +6,7 @@ const world_bounds_right = Vector2(480, 305)
 var in_world = false
 
 var panic_level = 0
-var max_panic_level = 40
+var max_panic_level = 30
 var dome_spotlight = false
 var dome_turret = false
 var soldiers_spawn = false

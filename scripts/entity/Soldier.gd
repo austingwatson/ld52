@@ -123,6 +123,7 @@ func _physics_process(delta):
 
 func _exit_tree():
 	if colonist_to_drag != null && is_instance_valid(colonist_to_drag):
+		print("adding panic from here")
 		get_parent().add_to_panic(1)
 		colonist_to_drag.queue_free()
 

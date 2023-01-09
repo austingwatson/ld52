@@ -6,7 +6,7 @@ onready var hurt_node = $Hurt
 onready var animation_player = $AnimationPlayer
 
 var brains = 0
-export var brains_needed = 40
+export var brains_needed = 30
 var health = 100
 var total_health = health
 

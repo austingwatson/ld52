@@ -38,6 +38,30 @@ While powered, habitats will create food and new colonists. Some colonists are S
 Watch out for soldiers. When there is no room in a habitat, excess colonists will be recruited to the security force. Some join the service on their own as well."
 autowrap = true
 
+[node name="Label2" type="Label" parent="."]
+visible = false
+margin_left = 1.0
+margin_top = 1.0
+margin_right = 478.0
+margin_bottom = 266.0
+custom_fonts/font = SubResource( 1 )
+text = " Controls:
+  left click - select unit
+  hold left click and move mouse - selection rectangle
+  right click - order units
+  shift + order - adds order to queue
+  middle mouse click - move screen
+  wasd - move screen
+  hover mouse near screen - move screen
+  scroll wheel - zoom
+
+ You get these abilities with enough brains (Will appear in top right):
+  1 - create a noise ability
+  2 - create a time slow field
+  3 - teleport your units
+  4 - mind control a colonist"
+autowrap = true
+
 [node name="Play" type="TextureButton" parent="."]
 anchor_left = 0.5
 anchor_top = 1.0
@@ -54,7 +78,8 @@ texture_hover = ExtResource( 3 )
 margin_right = 98.0
 margin_bottom = 20.0
 custom_fonts/font = SubResource( 2 )
-text = "Go Back"
+text = "Next"
 align = 1
+valign = 1
 
 [connection signal="pressed" from="Play" to="." method="_on_Play_pressed"]

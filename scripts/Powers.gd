@@ -39,7 +39,12 @@ func _unhandled_input(event):
 			for colonist in colonists:
 				if mouse_pos.distance_to(colonist.position) <= noise_range:
 					colonist.move_to_noise(mouse_pos)
-		
+			
+			var domes = get_tree().get_nodes_in_group("dome")
+			for dome in domes:
+				if mouse_pos.distance_to(dome.position) <= noise_range:
+					dome.turret_look_at(mouse_pos)
+			
 			pulse.visible = true
 			pulse.play("default")
 			pulse.frame = 0

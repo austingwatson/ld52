@@ -15,6 +15,7 @@ onready var action_timer = $ActionTimer
 onready var turret = $VisionCone/Turret
 onready var vision_light = $VisionCone/VisionLight
 onready var dome_wall = $DomeWall
+onready var muzzle_flash = $VisionCone/MuzzleFlash
 
 export var population = 1
 export var max_population = 7
@@ -55,7 +56,7 @@ func _ready():
 	if rng == 0:
 		spotlight_rotation_speed = -spotlight_rotation_speed
 		
-	rng = randi() % 5
+	rng = randi() % max_population
 	for i in range(rng):
 		add_food()
 		
@@ -108,6 +109,9 @@ func _process(delta):
 			animated_sprite.frame = 3
 	else:
 		animated_sprite.play("unpowered")
+
+func turret_look_at(position):
+	vision_cone.rotation = position.direction_to(vision_cone.position).angle() + PI
 
 func turn_off():
 	.turn_off()
@@ -317,7 +321,10 @@ func _on_ActionTimer_timeout():
 	if turret_on:
 		if drones.size() > 0 && population > 0:
 			if is_instance_valid(target_drone):
-				target_drone.hurt()
+				if on:
+					target_drone.hurt()
+					muzzle_flash.visible = true
+					muzzle_flash.play("default")
 	elif spotlight_on:
 		if drones.size() > 0 && population > 0:
 			if is_instance_valid(target_drone):
@@ -326,3 +333,6 @@ func _on_ActionTimer_timeout():
 func _on_DomeWall_animation_finished():
 	$DomeWall.playing = false
 	$DomeWall.frame = 1
+
+func _on_MuzzleFlash_animation_finished():
+	muzzle_flash.visible = false

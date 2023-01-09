@@ -196,7 +196,7 @@ z_index = 10
 script = ExtResource( 3 )
 max_action_spots = 25
 action_wait_time = 60.0
-brains_needed = 40
+brains_needed = 30
 
 [node name="AnimatedSprite" parent="." index="0"]
 frames = SubResource( 4 )

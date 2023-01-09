@@ -199,6 +199,8 @@ func move_to(target):
 	state = State.Moving
 
 func action_move_to(action_target):
+	if !is_instance_valid(action_target):
+		return
 	self.action_target = action_target
 	self.target = action_target.position
 	state = State.ActionMoving

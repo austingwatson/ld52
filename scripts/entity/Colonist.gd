@@ -106,6 +106,7 @@ func move(delta):
 		state = State.Idle
 	elif position.distance_to(target) <= target_max:
 		if panic_state == PanicState.Panic:
+			print("panic panic")
 			get_parent().add_to_panic(1)
 			if colonist_target != null && is_instance_valid(colonist_target):
 				colonist_target.reported = true
