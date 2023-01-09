@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=2]
+[gd_scene load_steps=28 format=2]
 
 [ext_resource path="res://scenes/entity/Enemy.tscn" type="PackedScene" id=1]
 [ext_resource path="res://scripts/entity/Dome.gd" type="Script" id=2]
@@ -8,6 +8,7 @@
 [ext_resource path="res://assets/effects/spotlight_beam.png" type="Texture" id=6]
 [ext_resource path="res://assets/structures/turret_sheet.png" type="Texture" id=7]
 [ext_resource path="res://scenes/entity/Generator.tscn" type="PackedScene" id=8]
+[ext_resource path="res://assets/structures/dome_lockdown_sheet.png" type="Texture" id=9]
 
 [sub_resource type="AtlasTexture" id=3]
 atlas = ExtResource( 3 )
@@ -39,6 +40,35 @@ animations = [ {
 "frames": [ SubResource( 7 ) ],
 "loop": true,
 "name": "unpowered",
+"speed": 5.0
+} ]
+
+[sub_resource type="AtlasTexture" id=16]
+atlas = ExtResource( 9 )
+region = Rect2( 132, 0, 66, 50 )
+
+[sub_resource type="AtlasTexture" id=17]
+atlas = ExtResource( 9 )
+region = Rect2( 198, 0, 66, 50 )
+
+[sub_resource type="AtlasTexture" id=18]
+atlas = ExtResource( 9 )
+region = Rect2( 0, 0, 66, 50 )
+
+[sub_resource type="AtlasTexture" id=19]
+atlas = ExtResource( 9 )
+region = Rect2( 66, 0, 66, 50 )
+
+[sub_resource type="SpriteFrames" id=20]
+animations = [ {
+"frames": [ SubResource( 16 ), SubResource( 17 ) ],
+"loop": true,
+"name": "full",
+"speed": 5.0
+}, {
+"frames": [ SubResource( 18 ), SubResource( 19 ) ],
+"loop": true,
+"name": "partial",
 "speed": 5.0
 } ]
 
@@ -90,18 +120,27 @@ spotlight_rotation_speed = 0.2
 frames = SubResource( 8 )
 animation = "powered"
 
-[node name="CollisionShape2D" parent="." index="1"]
+[node name="DomeWall" type="AnimatedSprite" parent="." index="1"]
+visible = false
+frames = SubResource( 20 )
+animation = "partial"
+speed_scale = 0.25
+
+[node name="CollisionShape2D" parent="." index="2"]
+visible = false
 shape = SubResource( 9 )
 
-[node name="TextureProgress" parent="." index="2"]
-margin_top = -38.0
-margin_bottom = -22.0
+[node name="TextureProgress" parent="." index="3"]
+margin_left = -16.0
+margin_top = -40.0
+margin_right = 16.0
+margin_bottom = -24.0
 
-[node name="FoodTimer" type="Timer" parent="." index="3"]
+[node name="FoodTimer" type="Timer" parent="." index="4"]
 wait_time = 5.0
 autostart = true
 
-[node name="FoodBar" type="TextureProgress" parent="." index="4"]
+[node name="FoodBar" type="TextureProgress" parent="." index="5"]
 margin_left = -32.0
 margin_top = -24.0
 margin_right = 32.0
@@ -109,59 +148,60 @@ margin_bottom = 24.0
 mouse_filter = 2
 texture_progress = ExtResource( 4 )
 
-[node name="Pop1" type="Sprite" parent="." index="5"]
+[node name="Pop1" type="Sprite" parent="." index="6"]
 position = Vector2( -17, 0.5 )
 texture = ExtResource( 5 )
 
-[node name="Pop2" type="Sprite" parent="." index="6"]
+[node name="Pop2" type="Sprite" parent="." index="7"]
 visible = false
 position = Vector2( -17, 6.5 )
 texture = ExtResource( 5 )
 
-[node name="Pop3" type="Sprite" parent="." index="7"]
+[node name="Pop3" type="Sprite" parent="." index="8"]
 visible = false
 position = Vector2( 1, 0.5 )
 texture = ExtResource( 5 )
 
-[node name="Pop4" type="Sprite" parent="." index="8"]
+[node name="Pop4" type="Sprite" parent="." index="9"]
 visible = false
 position = Vector2( 1, 6.5 )
 texture = ExtResource( 5 )
 
-[node name="Pop5" type="Sprite" parent="." index="9"]
+[node name="Pop5" type="Sprite" parent="." index="10"]
 visible = false
 position = Vector2( 1, 12.5 )
 texture = ExtResource( 5 )
 
-[node name="Pop6" type="Sprite" parent="." index="10"]
+[node name="Pop6" type="Sprite" parent="." index="11"]
 visible = false
 position = Vector2( 19, 0.5 )
 texture = ExtResource( 5 )
 
-[node name="Pop7" type="Sprite" parent="." index="11"]
+[node name="Pop7" type="Sprite" parent="." index="12"]
 visible = false
 position = Vector2( 19, 6.5 )
 texture = ExtResource( 5 )
 
-[node name="Action" parent="." index="12"]
+[node name="Action" parent="." index="13"]
 margin_right = 66.0
 margin_bottom = 20.0
 text = "Harvest"
 
-[node name="TurretBase" type="Sprite" parent="." index="13"]
+[node name="TurretBase" type="Sprite" parent="." index="14"]
 visible = false
 position = Vector2( 0, -22 )
 texture = SubResource( 10 )
 
-[node name="VisionCone" type="Node2D" parent="." index="14"]
+[node name="VisionCone" type="Node2D" parent="." index="15"]
 position = Vector2( 0, -28 )
 
 [node name="Area2D" type="Area2D" parent="VisionCone" index="0"]
 z_index = 1
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="VisionCone/Area2D" index="0"]
+visible = false
 position = Vector2( 0, 28 )
-polygon = PoolVector2Array( 9, -28, 197, -120, 196, 62 )
+polygon = PoolVector2Array( 9, -28, 156, -96, 156, 40 )
 
 [node name="Turret" type="AnimatedSprite" parent="VisionCone" index="1"]
 visible = false
@@ -171,17 +211,17 @@ animation = "spotlight"
 [node name="Sprite" type="Sprite" parent="VisionCone" index="2"]
 visible = false
 modulate = Color( 1, 1, 1, 0.196078 )
-position = Vector2( 107, 0 )
+position = Vector2( 85, 0 )
 texture = ExtResource( 6 )
 
-[node name="BuildTimer" type="Timer" parent="." index="15"]
+[node name="BuildTimer" type="Timer" parent="." index="16"]
 one_shot = true
 
-[node name="ActionTimer" type="Timer" parent="." index="16"]
+[node name="ActionTimer" type="Timer" parent="." index="17"]
 wait_time = 2.0
 one_shot = true
 
-[node name="Label" type="Label" parent="." index="17"]
+[node name="Label" type="Label" parent="." index="18"]
 visible = false
 margin_left = -34.0
 margin_top = -50.0
@@ -189,10 +229,11 @@ margin_right = 39.0
 margin_bottom = -36.0
 text = "dome walls"
 
-[node name="Generator" parent="." index="18" instance=ExtResource( 8 )]
+[node name="Generator" parent="." index="19" instance=ExtResource( 8 )]
 visible = false
 position = Vector2( -44, 0 )
 
+[connection signal="animation_finished" from="DomeWall" to="." method="_on_DomeWall_animation_finished"]
 [connection signal="timeout" from="FoodTimer" to="." method="_on_FoodTimer_timeout"]
 [connection signal="area_entered" from="VisionCone/Area2D" to="." method="_on_VisionCone_area_entered"]
 [connection signal="area_exited" from="VisionCone/Area2D" to="." method="_on_VisionCone_area_exited"]

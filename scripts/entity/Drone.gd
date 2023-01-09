@@ -4,6 +4,10 @@ onready var animated_sprite = $AnimatedSprite
 onready var brain = $Brain
 onready var line = $Line2D
 onready var commands = $Commands
+onready var animation_player = $AnimationPlayer
+onready var attack = $Attack
+onready var hit = $Hit
+onready var interaction_line = $InteractionLine
 
 var alive = true
 
@@ -26,6 +30,8 @@ export var rotation_speed = 40.0
 
 var action_commands = []
 
+var health = 5
+
 enum State {
 	Idle,
 	Moving,
@@ -37,6 +43,8 @@ var state = State.Idle
 func _ready():
 	commands.set_as_toplevel(true)
 	commands.add_point(position)
+	
+	interaction_line.set_as_toplevel(true)
 
 func _physics_process(delta):
 	if not alive:
@@ -91,6 +99,15 @@ func _physics_process(delta):
 	if velocity.length() == 0:
 		rotation_degrees = 0
 
+func hurt():
+	SoundManager.play_gun_shot()
+	hit.play("default")
+	hit.visible = true
+	health -= 1
+	if health <= 0:
+		get_parent().remove_from_selected(self)
+		queue_free()
+
 func select():
 	line.visible = true
 
@@ -104,12 +121,28 @@ func in_action():
 	state = State.Action
 	animated_sprite.play("action")
 	
+	if action_target != null && is_instance_valid(action_target):
+		interaction_line.add_point(position)
+		interaction_line.add_point(action_target.position)
+		
+		if action_target.is_in_group("colonist") || action_target.is_in_group("generator"):
+			if action_target.alive:
+				attack.play("default")
+				attack.visible = true
+				
+				if animated_sprite.flip_h:
+					attack.position = Vector2(-7, 0)
+				else:
+					attack.position = Vector2(7, 0)
+	
 func stop_action(enemy, enemy_min_distance):
 	state = State.Idle
 	animated_sprite.play("alive")
 	
 	self.enemy = enemy
 	self.enemy_min_distance = enemy_min_distance
+	
+	interaction_line.clear_points()
 
 func holding_brain():
 	return brain.visible
@@ -118,6 +151,7 @@ func give_brain():
 	if brain.visible:
 		return false
 	else:
+		animation_player.play("plus_brain")
 		brain.visible = true
 		return true
 
@@ -181,3 +215,9 @@ func _on_Drone_area_exited(area):
 		flock_enemies.erase(area)
 	elif area.is_in_group("drone"):
 		flock_drones.erase(area)
+
+func _on_Attack_animation_finished():
+	attack.visible = false
+
+func _on_Hit_animation_finished():
+	hit.visible = false

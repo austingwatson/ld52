@@ -256,6 +256,8 @@ func generate_map(difficulty):
 	
 	for drone in get_tree().get_nodes_in_group("drone"):
 		drone.position.x += rx + 70
+		
+	WorldBounds.in_world = true
 
 # query the physics engine based on the rectangle created
 func select_units(drag_end):
@@ -265,8 +267,10 @@ func select_units(drag_end):
 	select_query.set_shape(select_rect)
 	select_query.transform = Transform2D(0, (drag_end + drag_start) / 2)
 	
+	
 	for unit in selected:
-		unit.deselect()
+		if is_instance_valid(unit):
+			unit.deselect()
 	selected.clear()
 	
 	var selected_all = space.intersect_shape(select_query)
@@ -299,6 +303,9 @@ func action(position):
 		work_units(enemy_unit)
 	else:
 		move_units(position)
+
+func remove_from_selected(unit):
+	selected.erase(unit)
 
 func move_units(position):
 	for unit in selected:

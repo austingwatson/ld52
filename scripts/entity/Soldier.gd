@@ -25,6 +25,7 @@ var colonist_to_drag = null
 
 var drone_in_sight = false
 var drone_target = null
+var mother_target = null
 var resting = false
 var can_shoot = false
 
@@ -102,9 +103,12 @@ func _physics_process(delta):
 				fight_state = FightState.Guard
 				guard_timer.start()
 		else:
-			target = drone_target.position
-			vision_cone.rotation = position.direction_to(target).angle()
-			shoot()
+			if is_instance_valid(drone_target):
+				target = drone_target.position
+				vision_cone.rotation = position.direction_to(target).angle()
+				shoot()
+			else:
+				fight_state = FightState.Guard
 	
 	elif fight_state == FightState.Patrol:
 		if state == State.Idle:
@@ -134,7 +138,6 @@ func move_to_search(position):
 	state = State.MoveSearch
 
 func shoot():
-	print("shoot")
 	can_shoot = false
 	shoot_timer.start()
 	resting = true
@@ -143,13 +146,18 @@ func shoot():
 	muzzle_flash.play("default")
 	muzzle_flash.visible = true
 	
-	var dir = cos(vision_cone.rotation)
-	if dir <= 0:
+	if animated_sprite.flip_h:
 		muzzle_flash.flip_h = true
 		muzzle_flash.position = Vector2(-13, -1)
 	else:
 		muzzle_flash.flip_h = false
 		muzzle_flash.position = Vector2(13, -1)
+	
+	if fight_state == FightState.AttackMotherBrain:
+		var mother_brain = get_tree().get_nodes_in_group("mother_brain")
+		mother_brain[0].hurt()
+	elif drone_target != null && is_instance_valid(drone_target):	
+		drone_target.hurt()
 
 func patrol():
 	for i in range(4):
@@ -163,6 +171,8 @@ func patrol():
 func _on_SearchTimer_timeout():
 	if suspect == 1:
 		fight_state = FightState.GuardMoving
+		if !is_instance_valid(colonist_to_drag):
+			return
 		colonist_to_drag.reported = true
 		guard_timer.start()
 	elif suspect == 2:

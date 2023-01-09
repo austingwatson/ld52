@@ -3,6 +3,7 @@ extends Node
 const world_bounds_left = Vector2(-480, -430)
 const world_bounds_right = Vector2(480, 305)
 
+var in_world = false
 var panic_level = 0
 var max_panic_level = 8
 var dome_spotlight = false
@@ -17,6 +18,10 @@ var soldiers_attack_mother = false
 var drones_selected = false
 
 func _process(delta):
+	var drones = get_tree().get_nodes_in_group("drone")
+	if in_world && drones.size() == 0:
+		panic_level = max_panic_level
+	
 	var percent = float(panic_level) / float(max_panic_level) * 100
 	
 	if percent > 96:
@@ -25,6 +30,10 @@ func _process(delta):
 	elif percent > 84:
 		if !domes_sealed:
 			domes_sealed = true
+			
+			var domes = get_tree().get_nodes_in_group("dome")
+			for dome in domes:
+				dome.turn_on_spotlight()
 	elif percent > 72:
 		if !soldiers_replace_colonists:
 			soldiers_replace_colonists = true
@@ -55,3 +64,9 @@ func _process(delta):
 			var domes = get_tree().get_nodes_in_group("dome")
 			for dome in domes:
 				dome.turn_on_spotlight()
+
+func lose():
+	print("you lose")
+	
+func win():
+	print("you win")

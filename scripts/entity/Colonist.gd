@@ -1,5 +1,7 @@
 extends "res://scripts/entity/Enemy.gd"
 
+const blood_texture = preload("res://assets/effects/blood.png")
+
 onready var animated_sprite = $AnimatedSprite
 onready var vision_cone = $VisionCone
 onready var search_timer = $SearchTimer
@@ -26,6 +28,7 @@ export var brains = 1
 var in_action = false
 
 var reported = false
+var killed = false
 
 enum PanicState {
 	Calm,
@@ -108,6 +111,16 @@ func move(delta):
 		if rotation_degrees <= min_rotation:
 			rotation_direction = 0
 
+func dead():
+	if !killed:
+		killed = true
+		var sprite = Sprite.new()
+		sprite.z_index = -1
+		sprite.position = position
+		sprite.texture = blood_texture
+		get_parent().add_child(sprite)
+		SoundManager.play_death_sound()
+
 func action_done():
 	in_action = false	
 	.action_done()
@@ -126,10 +139,12 @@ func action_done():
 		
 		current_action += 1
 		action.text = "Harvest"
+		dead()
 		
 	elif current_action == 1:
 		for drone in current_drones:
 			if drone.give_brain():
+				SoundManager.play_harvest()
 				brains -= 1
 				harvest_effect.play("default")
 				harvest_effect.visible = true
@@ -138,7 +153,7 @@ func action_done():
 				break
 		if brains <= 0:
 			current_action += 1
-			action.text = "Remove"
+			action.text = "Clean Up"
 			
 	elif current_action == 2:
 		queue_free()

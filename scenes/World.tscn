@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://scripts/World.gd" type="Script" id=1]
 [ext_resource path="res://scenes/entity/MotherBrain.tscn" type="PackedScene" id=2]
@@ -10,6 +10,7 @@
 [ext_resource path="res://assets/landscape/landscape4.png" type="Texture" id=8]
 [ext_resource path="res://assets/landscape/landscape5.png" type="Texture" id=9]
 [ext_resource path="res://assets/ui/cordon.png" type="Texture" id=10]
+[ext_resource path="res://assets/sounds/mars_loop.wav" type="AudioStream" id=11]
 
 [sub_resource type="AtlasTexture" id=1]
 atlas = ExtResource( 7 )
@@ -118,5 +119,10 @@ width = 4.0
 default_color = Color( 1, 1, 1, 0.686275 )
 texture = ExtResource( 10 )
 texture_mode = 1
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 11 )
+autoplay = true
+bus = "Music"
 
 [connection signal="animation_finished" from="ClickSpot" to="." method="_on_ClickSpot_animation_finished"]

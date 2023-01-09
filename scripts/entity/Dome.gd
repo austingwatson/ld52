@@ -242,13 +242,25 @@ func _on_BuildTimer_timeout():
 		turret_on = true
 	elif spotlight_build == 4:
 		spotlight_build += 1
-		$Label.visible = true
+		$DomeWall.play("partial")
+		$DomeWall.visible = true
+	elif spotlight_build == 5:
+		spotlight_build += 1
+		$DomeWall.play("full")
+		$DomeWall.visible = true
 
 func _on_ActionTimer_timeout():
 	doing_action = false
 	
 	if turret_on:
-		print("shoot")
+		if drones.size() > 0 && population > 0:
+			if is_instance_valid(target_drone):
+				target_drone.hurt()
 	elif spotlight_on:
 		if drones.size() > 0 && population > 0:
-			spawn_soldier(target_drone.position)
+			if is_instance_valid(target_drone):
+				spawn_soldier(target_drone.position)
+
+func _on_DomeWall_animation_finished():
+	$DomeWall.playing = false
+	$DomeWall.frame = 1
