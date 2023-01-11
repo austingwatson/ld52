@@ -149,6 +149,10 @@ func _unhandled_input(event):
 		mouse_pos = event.position
 		
 func _physics_process(delta):
+	for drone in selected:
+		if drone.holding_brain():
+			WorldBounds.drones_selected_has_brain = true
+	
 	if WorldBounds.play_win_cutscene:
 		mother_brain.position.y -= mother_ship_accel * delta
 		mother_ship_accel += 0.5
