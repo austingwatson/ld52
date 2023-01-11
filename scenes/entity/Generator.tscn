@@ -51,6 +51,7 @@ action_wait_time = 15.0
 [node name="AnimatedSprite" parent="." index="0"]
 frames = SubResource( 1 )
 animation = "on"
+frame = 3
 playing = true
 
 [node name="CollisionShape2D" parent="." index="1"]

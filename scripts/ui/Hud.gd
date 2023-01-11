@@ -4,6 +4,8 @@ onready var texture_progress = $TextureProgress
 onready var flash_panic = $FlashPanic
 onready var flash_timer = $FlashTimer
 onready var mana = $Mana
+onready var alert_flash = $AlertFlash
+onready var mana_flash = $Mana/ManaFlash
 
 onready var noise = $Noise
 onready var slow = $Slow
@@ -27,12 +29,18 @@ func _process(delta):
 
 func add_to_mana(amount):
 	mana.value += amount
+	print(amount)
+	if amount < 0:
+		mana_flash.play("default")
+		mana_flash.visible = true
 
 func set_panic(amount):
 	panic = amount
 	texture_progress.value = panic
 	flash_timer.start()
 	flash_panic.visible = true
+	alert_flash.play("default")
+	alert_flash.visible = true
 	flashes = 2
 
 func add_to_panic(amount):
@@ -41,6 +49,8 @@ func add_to_panic(amount):
 	flash_timer.start()
 	flash_panic.visible = true
 	flashes = 2
+	alert_flash.play("default")
+	alert_flash.visible = true
 
 func _on_FlashTimer_timeout():
 	if flashes > 0:
@@ -52,3 +62,7 @@ func _on_FlashTimer_timeout():
 		flash_timer.start()
 	else:
 		flash_panic.visible = false
+		alert_flash.visible = false
+
+func _on_ManaFlash_animation_finished():
+	mana_flash.visible = false

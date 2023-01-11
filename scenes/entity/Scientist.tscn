@@ -61,4 +61,6 @@ margin_left = -26.0
 margin_top = 7.0
 margin_right = 28.0
 margin_bottom = 27.0
-align = 1
+
+[node name="Alert" parent="." index="8"]
+frame = 0

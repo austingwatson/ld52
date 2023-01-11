@@ -29,6 +29,10 @@ config/icon="res://icon.png"
 WorldBounds="*res://scripts/world_bounds.gd"
 SoundManager="*res://scripts/sound_manager.gd"
 
+[debug]
+
+settings/fps/force_fps=60
+
 [display]
 
 window/size/width=480

@@ -60,9 +60,13 @@ func turn_off():
 
 func add_to_action_spot():
 	current_action_spots += 1
+	if current_action_spots > max_action_spots:
+		current_action_spots = max_action_spots
 
 func remove_from_action_spot():
 	current_action_spots -= 1
+	if current_action_spots < 0:
+		current_action_spots = 0
 
 func action_spots_left():
 	return max_action_spots - current_action_spots
@@ -96,7 +100,6 @@ func _on_Enemy_area_exited(area):
 	if current_drones.size() == 0:
 		action_interuppted()
 		texture_progress.visible = false
-		
 	
 	if area.action_target == self:
 		area.stop_action(self, action_range_radius)

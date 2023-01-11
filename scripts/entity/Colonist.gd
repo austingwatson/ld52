@@ -244,6 +244,7 @@ func _on_SearchTimer_timeout():
 	animated_sprite.play("panic")
 	alert.play("panic")
 	vision_cone.visible = false
+	SoundManager.play_bing()
 	
 	go_to_closest_dome()
 

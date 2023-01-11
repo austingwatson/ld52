@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=2]
+[gd_scene load_steps=44 format=2]
 
 [ext_resource path="res://scenes/entity/Enemy.tscn" type="PackedScene" id=1]
 [ext_resource path="res://scripts/entity/Dome.gd" type="Script" id=2]
@@ -7,9 +7,10 @@
 [ext_resource path="res://assets/structures/window_lit.png" type="Texture" id=5]
 [ext_resource path="res://assets/effects/spotlight_beam.png" type="Texture" id=6]
 [ext_resource path="res://assets/structures/turret_sheet.png" type="Texture" id=7]
-[ext_resource path="res://scenes/entity/Generator.tscn" type="PackedScene" id=8]
+[ext_resource path="res://assets/ui/minus.png" type="Texture" id=8]
 [ext_resource path="res://assets/structures/dome_lockdown_sheet.png" type="Texture" id=9]
 [ext_resource path="res://assets/effects/muzzle_flash.png" type="Texture" id=10]
+[ext_resource path="res://assets/ui/plus.png" type="Texture" id=11]
 
 [sub_resource type="AtlasTexture" id=3]
 atlas = ExtResource( 3 )
@@ -133,6 +134,51 @@ animations = [ {
 "speed": 5.0
 } ]
 
+[sub_resource type="AtlasTexture" id=26]
+atlas = ExtResource( 8 )
+region = Rect2( 0, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=27]
+atlas = ExtResource( 8 )
+region = Rect2( 16, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=28]
+atlas = ExtResource( 8 )
+region = Rect2( 32, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=29]
+atlas = ExtResource( 8 )
+region = Rect2( 48, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=30]
+atlas = ExtResource( 11 )
+region = Rect2( 0, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=31]
+atlas = ExtResource( 11 )
+region = Rect2( 16, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=32]
+atlas = ExtResource( 11 )
+region = Rect2( 32, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=33]
+atlas = ExtResource( 11 )
+region = Rect2( 48, 0, 16, 16 )
+
+[sub_resource type="SpriteFrames" id=34]
+animations = [ {
+"frames": [ SubResource( 26 ), SubResource( 27 ), SubResource( 28 ), SubResource( 29 ) ],
+"loop": true,
+"name": "minus",
+"speed": 5.0
+}, {
+"frames": [ SubResource( 30 ), SubResource( 31 ), SubResource( 32 ), SubResource( 33 ) ],
+"loop": true,
+"name": "plus",
+"speed": 5.0
+} ]
+
 [node name="Dome" groups=["dome"] instance=ExtResource( 1 )]
 z_index = 2
 script = ExtResource( 2 )
@@ -164,9 +210,9 @@ margin_bottom = -24.0
 
 [node name="FoodTimer" type="Timer" parent="." index="4"]
 wait_time = 25.0
-autostart = true
 
 [node name="FoodBar" type="TextureProgress" parent="." index="5"]
+visible = false
 margin_left = -32.0
 margin_top = -24.0
 margin_right = 32.0
@@ -221,6 +267,7 @@ position = Vector2( 0, -22 )
 texture = SubResource( 10 )
 
 [node name="VisionCone" type="Node2D" parent="." index="15"]
+visible = false
 position = Vector2( 0, -28 )
 
 [node name="Area2D" type="Area2D" parent="VisionCone" index="0"]
@@ -262,9 +309,15 @@ margin_right = 39.0
 margin_bottom = -36.0
 text = "dome walls"
 
-[node name="Generator" parent="." index="19" instance=ExtResource( 8 )]
+[node name="PopChange" type="AnimatedSprite" parent="." index="19"]
 visible = false
-position = Vector2( -44, 0 )
+position = Vector2( 0, -36 )
+frames = SubResource( 34 )
+animation = "plus"
+speed_scale = 0.5
+
+[node name="StartFoodTimer" type="Timer" parent="." index="20"]
+one_shot = true
 
 [connection signal="animation_finished" from="DomeWall" to="." method="_on_DomeWall_animation_finished"]
 [connection signal="timeout" from="FoodTimer" to="." method="_on_FoodTimer_timeout"]
@@ -273,3 +326,5 @@ position = Vector2( -44, 0 )
 [connection signal="animation_finished" from="VisionCone/MuzzleFlash" to="." method="_on_MuzzleFlash_animation_finished"]
 [connection signal="timeout" from="BuildTimer" to="." method="_on_BuildTimer_timeout"]
 [connection signal="timeout" from="ActionTimer" to="." method="_on_ActionTimer_timeout"]
+[connection signal="animation_finished" from="PopChange" to="." method="_on_PopChange_animation_finished"]
+[connection signal="timeout" from="StartFoodTimer" to="." method="_on_StartFoodTimer_timeout"]

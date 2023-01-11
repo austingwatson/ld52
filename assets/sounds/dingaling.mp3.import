@@ -11,5 +11,5 @@ dest_files=[ "res://.import/dingaling.mp3-efa5b11e46aca461e1d09d97e93f8809.mp3st
 
 [params]
 
-loop=true
+loop=false
 loop_offset=0

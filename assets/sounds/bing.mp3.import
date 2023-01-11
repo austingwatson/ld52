@@ -11,5 +11,5 @@ dest_files=[ "res://.import/bing.mp3-879770195d4d78e93412df115baa06ca.mp3str" ]
 
 [params]
 
-loop=true
+loop=false
 loop_offset=0

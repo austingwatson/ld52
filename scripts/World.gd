@@ -12,6 +12,7 @@ const dome_scene = preload("res://scenes/entity/Dome.tscn")
 const drone_scene = preload("res://scenes/entity/Drone.tscn")
 const path_texture = preload("res://assets/structures/path.png")
 const generator_scene = preload("res://scenes/entity/Generator.tscn")
+const path_junction = preload("res://assets/structures/path_junction2.png")
 
 # variables to show the selection rectangle
 # and query the physics engine for selected units
@@ -245,8 +246,15 @@ func generate_map(difficulty):
 		dome.position = Vector2(x * 8, y * 8)
 		domes.append(dome)
 
+	var lines = []
 	for i in range(domes.size()):
-		for j in range(i, domes.size()):
+		for j in range(i + 1, domes.size()):
+			var no_dome = randf()
+			if no_dome <= 0.33:
+				domes[i].add_dome_not_connected(domes[j])
+				domes[j].add_dome_not_connected(domes[i])
+				continue
+			
 			var line = Line2D.new()
 			line.width = 4
 			line.default_color = Color.white
@@ -254,25 +262,67 @@ func generate_map(difficulty):
 			line.texture_mode = Line2D.LINE_TEXTURE_TILE
 			line.z_index = -1
 		
-			var rng = 2
-			if rng == 0:
-				# horizontal
-				line.add_point(Vector2(domes[i].position.x, domes[i].position.y))
-				line.add_point(Vector2(domes[j].position.x, domes[i].position.y))
-				line.add_point(domes[j].position)
-			elif rng == 1:
-				# vertical
-				line.add_point(Vector2(domes[i].position.x, domes[i].position.y))
-				line.add_point(Vector2(domes[i].position.x, domes[j].position.y))
-				line.add_point(domes[j].position)
-			elif rng == 2:
-				line.add_point(domes[i].position)
-				line.add_point(domes[j].position)
+			line.add_point(domes[i].position)
+			line.add_point(domes[j].position)
 		
+			lines.append(line)
 			add_child(line)
-
+	
+	for i in range(domes.size()):
+		if domes[i].not_connected_to_dome(difficulty):
+			var line = Line2D.new()
+			line.width = 4
+			line.default_color = Color.white
+			line.texture = path_texture
+			line.texture_mode = Line2D.LINE_TEXTURE_TILE
+			line.z_index = -1
+		
+			if i == 0:
+				line.add_point(domes[i].position)
+				line.add_point(domes[1].position)
+				domes[i].remove_dome_not_connected(domes[1])
+				domes[1].remove_dome_not_connected(domes[i])
+			else:
+				line.add_point(domes[i].position)
+				line.add_point(domes[0].position)
+				domes[i].remove_dome_not_connected(domes[0])
+				domes[0].remove_dome_not_connected(domes[i])
+		
+			lines.append(line)
+			add_child(line)
+	
+	var junctions = {}
+	for i in range(lines.size()):
+		for j in range(i + 1, lines.size()):
+			var intersection = line_intersects(lines[i].points[0], lines[i].points[1], lines[j].points[0], lines[j].points[1])
+			if intersection != null:
+				junctions[intersection] = lines[i].points[0]
+				
+	for junction in junctions.keys():
+		var near_dome = false
+		for d in domes:
+			if d.position.distance_to(junction) <= 1:
+				near_dome = true
+				break
+		if !near_dome:
+			var angle_offset = 0
+			
+			for i in range(4):
+				var sprite = Sprite.new()
+				sprite.texture = path_junction
+				sprite.position = junction
+			
+				var angle = sprite.position.direction_to(junctions[junction]).angle() + angle_offset
+			
+				sprite.rotation = angle
+				add_child(sprite)
+				
+				angle_offset += PI / 2
+	
 	for d in domes:
 		add_child(d)
+	for d in domes:
+		d.start()
 	
 	var temp_domes = []
 	temp_domes.append_array(domes)
@@ -291,6 +341,26 @@ func generate_map(difficulty):
 		drone.position.x += rx + 70
 		
 	WorldBounds.in_world = true
+
+func line_intersects(p1: Vector2, p2: Vector2, q1: Vector2, q2: Vector2):
+	var r: Vector2 = p2 - p1
+	var s: Vector2 = q2 - q1
+	var rxs = r.cross(s)
+	var qpxr = (q1 - p1).cross(r)
+	
+	if rxs == 0 && qpxr == 0:
+		return null
+	
+	if rxs == 0 && qpxr != 0:
+		return null
+		
+	var t = (q1 - p1).cross(s) / rxs
+	var u = (q1 - p1).cross(r) / rxs
+	
+	if rxs != 0 && (0 <= t && t <= 1) && (0 <= u && u <= 1):
+		return p1 + t * r
+	
+	return null
 
 func start_win_cutscene():
 	mother_brain.start_boosters()
@@ -400,8 +470,6 @@ func move_units(position):
 		unit.remove_commands()
 
 func work_units(enemy_unit):
-	print(enemy_unit)
-	
 	if !enemy_unit.allow_action():
 		return
 	

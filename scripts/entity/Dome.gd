@@ -16,6 +16,7 @@ onready var turret = $VisionCone/Turret
 onready var vision_light = $VisionCone/VisionLight
 onready var dome_wall = $DomeWall
 onready var muzzle_flash = $VisionCone/MuzzleFlash
+onready var pop_change = $PopChange
 
 export var population = 1
 export var max_population = 7
@@ -35,6 +36,7 @@ var drones = []
 var doing_action = false
 
 var reported = []
+var domes_not_connected = []
 
 func _ready():
 	pop_lights.append($Pop1)
@@ -59,11 +61,8 @@ func _ready():
 	rng = randi() % max_population
 	for i in range(rng):
 		add_food()
-		
-	rng = randi() % 4
-	if rng == 0:
-		spawn_colonist()
-		remove_food()
+	
+	$StartFoodTimer.start(rand_range(0.1, 5))
 
 func _physics_process(delta):
 	if !on:
@@ -109,6 +108,21 @@ func _process(delta):
 			animated_sprite.frame = 3
 	else:
 		animated_sprite.play("unpowered")
+
+func add_dome_not_connected(dome):
+	domes_not_connected.append(dome)
+
+func remove_dome_not_connected(dome):
+	domes_not_connected.erase(dome)
+
+func not_connected_to_dome(max_domes):
+	return domes_not_connected.size() == max_domes - 1
+
+func start():
+	var rng = randi() % 3
+	if rng == 0:
+		spawn_colonist()
+		remove_food()
 
 func allow_action():
 	if population <= 0:
@@ -215,9 +229,12 @@ func spawn_colonist():
 	var domes = get_tree().get_nodes_in_group("dome")
 	domes.erase(self)
 	
+	for dome in domes_not_connected:
+		domes.erase(dome)
+	
 	if domes.size() == 0:
 		return
-	
+		
 	rng = randi() % domes.size()
 	var target_dome = domes[rng]
 	
@@ -239,15 +256,21 @@ func add_food():
 	if population > max_population:
 		population = max_population
 		spawn_colonist()
-	pop_lights[population - 1].visible = true
+	else:
+		pop_lights[population - 1].visible = true
 	
 	show_action = true
+	pop_change.play("plus")
+	pop_change.visible = true
 	
 func remove_food():
 	pop_lights[population - 1].visible = false
 	population -= 1
 	if population <= 0:
 		show_action = false
+	
+	pop_change.play("minus")
+	pop_change.visible = true
 
 func _on_FoodTimer_timeout():
 	add_food()
@@ -255,7 +278,9 @@ func _on_FoodTimer_timeout():
 	var rng = randi() % (8 - population)
 	if rng == 0:
 		spawn_colonist()
-		remove_food()
+		
+		if population < max_population:
+			remove_food()
 
 func _on_VisionCone_area_entered(area):
 	if area.is_in_group("drone"):
@@ -352,3 +377,10 @@ func _on_DomeWall_animation_finished():
 
 func _on_MuzzleFlash_animation_finished():
 	muzzle_flash.visible = false
+
+func _on_PopChange_animation_finished():
+	pop_change.visible = false
+
+func _on_StartFoodTimer_timeout():
+	food_timer.start()
+	food_bar.visible = true

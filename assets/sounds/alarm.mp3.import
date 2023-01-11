@@ -11,5 +11,5 @@ dest_files=[ "res://.import/alarm.mp3-fc5634e0c62fdbb697f0fd6e5b92cd25.mp3str" ]
 
 [params]
 
-loop=true
+loop=false
 loop_offset=0

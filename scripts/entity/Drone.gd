@@ -111,6 +111,9 @@ func hurt():
 	hit.visible = true
 	health -= 1
 	if health <= 0:
+		if action_target != null && is_instance_valid(action_target):
+			action_target.remove_from_action_spot()
+		
 		WorldBounds.play_text(3)
 		get_parent().remove_from_selected(self)
 		queue_free()
@@ -151,6 +154,8 @@ func stop_action(enemy, enemy_min_distance):
 	state = State.Idle
 	animated_sprite.play("alive")
 	
+	if action_target != null && is_instance_valid(action_target):
+		action_target.remove_from_action_spot()
 	action_target = null
 	self.enemy = enemy
 	self.enemy_min_distance = enemy_min_distance
@@ -159,6 +164,9 @@ func stop_action(enemy, enemy_min_distance):
 
 func action_interuppted():
 	interaction_line.clear_points()
+	
+	if action_target != null && is_instance_valid(action_target):
+		action_target.remove_from_action_spot()
 
 func holding_brain():
 	return brain.visible
@@ -203,6 +211,9 @@ func move_to(target):
 	state = State.Moving
 
 func action_move_to(action_target):
+	if self.action_target != null && is_instance_valid(self.action_target):
+		self.action_target.remove_from_action_spot()
+	
 	if !is_instance_valid(action_target):
 		return
 			
@@ -231,7 +242,7 @@ func _on_Drone_area_entered(area):
 	if area == self:
 		return
 	
-	if area.is_in_group("dome"):
+	if area.is_in_group("enemy"):
 		flock_enemies.append(area)
 	elif area.is_in_group("drone"):
 		flock_drones.append(area)
@@ -240,7 +251,7 @@ func _on_Drone_area_exited(area):
 	if area == self:
 		return
 	
-	if area.is_in_group("dome"):
+	if area.is_in_group("enemy"):
 		flock_enemies.erase(area)
 	elif area.is_in_group("drone"):
 		flock_drones.erase(area)

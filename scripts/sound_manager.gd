@@ -13,6 +13,7 @@ var scoop: AudioStreamPlayer
 var hurray: AudioStreamPlayer
 var physic: AudioStreamPlayer
 var alert: AudioStreamPlayer
+var bing: AudioStreamPlayer
 
 func _ready():
 	music_db = AudioServer.get_bus_index("Music")
@@ -64,9 +65,14 @@ func _ready():
 	add_child(physic)
 	
 	alert = AudioStreamPlayer.new()
-	alert.stream = preload("res://assets/sounds/alert.wav")
+	alert.stream = preload("res://assets/sounds/alarm.mp3")
 	alert.bus = "Sound"
 	add_child(alert)
+	
+	bing = AudioStreamPlayer.new()
+	bing.stream = preload("res://assets/sounds/bing.mp3")
+	bing.bus = "Sound"
+	add_child(bing)
 	
 func play_death_sound():
 	var rng = randi() % 4
@@ -111,3 +117,7 @@ func play_physic():
 
 func play_alert():
 	alert.play()
+
+func play_bing():
+	if !bing.playing:
+		bing.play()
