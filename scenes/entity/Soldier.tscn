@@ -135,9 +135,6 @@ margin_bottom = 27.0
 wait_time = 5.0
 one_shot = true
 
-[node name="Alert" parent="." index="13"]
-frame = 0
-
 [connection signal="timeout" from="GuardTimer" to="." method="_on_GuardTimer_timeout"]
 [connection signal="timeout" from="ShootTimer" to="." method="_on_ShootTimer_timeout"]
 [connection signal="timeout" from="RestTimer" to="." method="_on_RestTimer_timeout"]

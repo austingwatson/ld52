@@ -51,7 +51,6 @@ brains = 2
 
 [node name="AnimatedSprite" parent="." index="0"]
 frames = SubResource( 4 )
-animation = "action"
 
 [node name="CollisionShape2D" parent="." index="1"]
 shape = SubResource( 6 )
@@ -61,6 +60,3 @@ margin_left = -26.0
 margin_top = 7.0
 margin_right = 28.0
 margin_bottom = 27.0
-
-[node name="Alert" parent="." index="8"]
-frame = 0
