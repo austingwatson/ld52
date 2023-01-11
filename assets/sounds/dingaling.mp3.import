@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/dingaling.mp3-efa5b11e46aca461e1d09d97e93f8809.mp3str"
+
+[deps]
+
+source_file="res://assets/sounds/dingaling.mp3"
+dest_files=[ "res://.import/dingaling.mp3-efa5b11e46aca461e1d09d97e93f8809.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0
