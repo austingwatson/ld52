@@ -267,7 +267,6 @@ position = Vector2( 0, -22 )
 texture = SubResource( 10 )
 
 [node name="VisionCone" type="Node2D" parent="." index="15"]
-visible = false
 position = Vector2( 0, -28 )
 
 [node name="Area2D" type="Area2D" parent="VisionCone" index="0"]

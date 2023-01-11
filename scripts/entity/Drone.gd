@@ -242,7 +242,7 @@ func _on_Drone_area_entered(area):
 	if area == self:
 		return
 	
-	if area.is_in_group("enemy"):
+	if area.is_in_group("dome") || area.is_in_group("generator"):
 		flock_enemies.append(area)
 	elif area.is_in_group("drone"):
 		flock_drones.append(area)
@@ -251,7 +251,7 @@ func _on_Drone_area_exited(area):
 	if area == self:
 		return
 	
-	if area.is_in_group("enemy"):
+	if area.is_in_group("dome") || area.is_in_group("generator"):
 		flock_enemies.erase(area)
 	elif area.is_in_group("drone"):
 		flock_drones.erase(area)

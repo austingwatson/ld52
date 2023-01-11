@@ -11,9 +11,21 @@ onready var noise = $Noise
 onready var slow = $Slow
 onready var teleport = $Teleport
 onready var dominate = $Dominate
+onready var noise_flash = $Noise/NoiseFlash
+onready var teleport_flash = $Teleport/TeleportFlash
+onready var dominate_flash = $Dominate/DominateFlash
+onready var slow_flash = $Slow/SlowFlash
 
 var panic = 0
 var flashes = 2
+const final_alert = 4
+var on_final_alert = false
+
+var noise_flash_amount = 0
+var teleport_flash_amount = 0
+var dominate_flash_amount = 0
+var slow_flash_amount = 0
+const power_flash_max = 4
 
 func _process(delta):
 	if WorldBounds.noise_av:
@@ -41,9 +53,10 @@ func set_panic(amount):
 	flash_panic.visible = true
 	alert_flash.play("default")
 	alert_flash.visible = true
-	flashes = 2
+	flashes = final_alert
+	on_final_alert = true
 
-func add_to_panic(amount):
+func add_to_panic(amount, final):
 	panic += amount
 	texture_progress.value += amount
 	flash_timer.start()
@@ -51,6 +64,26 @@ func add_to_panic(amount):
 	flashes = 2
 	alert_flash.play("default")
 	alert_flash.visible = true
+	
+	if final:
+		on_final_alert = true
+		flashes = final_alert
+
+func use_noise():
+	noise_flash.play("default")
+	noise_flash_amount = 0
+
+func use_teleport():
+	teleport_flash.play("default")
+	teleport_flash_amount = 0
+
+func use_dominate():
+	dominate_flash.play("default")
+	dominate_flash_amount = 0
+
+func use_slow():
+	slow_flash.play("default")
+	slow_flash_amount = 0
 
 func _on_FlashTimer_timeout():
 	if flashes > 0:
@@ -60,9 +93,39 @@ func _on_FlashTimer_timeout():
 			flash_panic.visible = true
 		flashes -= 1
 		flash_timer.start()
+		if on_final_alert:
+			SoundManager.play_alert()
 	else:
 		flash_panic.visible = false
 		alert_flash.visible = false
 
 func _on_ManaFlash_animation_finished():
 	mana_flash.visible = false
+
+func _on_NoiseFlash_animation_finished():
+	noise_flash_amount += 1
+	
+	if noise_flash_amount > power_flash_max:
+		noise_flash.stop()
+		noise_flash.frame = 0
+
+func _on_TeleportFlash_animation_finished():
+	teleport_flash_amount += 1
+	
+	if teleport_flash_amount > power_flash_max:
+		teleport_flash.stop()
+		teleport_flash.frame = 0
+
+func _on_DominateFlash_animation_finished():
+	dominate_flash_amount += 1
+	
+	if dominate_flash_amount > power_flash_max:
+		dominate_flash.stop()
+		dominate_flash.frame = 0
+
+func _on_SlowFlash_animation_finished():
+	slow_flash_amount += 1
+	
+	if slow_flash_amount > power_flash_max:
+		slow_flash.stop()
+		slow_flash.frame = 0

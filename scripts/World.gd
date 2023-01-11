@@ -519,11 +519,24 @@ func get_selected():
 
 func add_to_panic(amount):
 	WorldBounds.panic_level += amount
-	WorldBounds.add_to_panic()
-	hud.add_to_panic(amount)
+	var update_hud = WorldBounds.add_to_panic()
+	if update_hud:
+		hud.add_to_panic(amount, WorldBounds.soldiers_attack_mother)
 
 func add_to_mana(amount):
 	hud.add_to_mana(amount)
+
+func use_noise():
+	hud.use_noise()
+
+func use_teleport():
+	hud.use_teleport()
+
+func use_dominate():
+	hud.use_dominate()
+
+func use_slow():
+	hud.use_slow()
 
 func _on_ClickSpot_animation_finished():
 	click_spot.playing = false

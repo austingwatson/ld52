@@ -115,7 +115,6 @@ func move(delta):
 		state = State.Idle
 	elif position.distance_to(target) <= target_max:
 		if panic_state == PanicState.Panic:
-			print("panic panic")
 			get_parent().add_to_panic(1)
 			if colonist_target != null && is_instance_valid(colonist_target):
 				colonist_target.reported = true
@@ -140,13 +139,23 @@ func move(delta):
 
 func dead():
 	if !killed:
-		killed = true
-		var sprite = Sprite.new()
-		sprite.z_index = -1
-		sprite.position = position
-		sprite.texture = blood_texture
-		get_parent().add_child(sprite)
-		SoundManager.play_death_sound()
+		if in_dome:
+			go_to_closest_dome()
+			var removing = false
+			if dome_target != null && is_instance_valid(dome_target):
+				var dis = position.distance_to(dome_target.position)
+				if dis <= 35:
+					removing = true
+					queue_free()
+			
+			if !removing:
+				killed = true
+				var sprite = Sprite.new()
+				sprite.z_index = -1
+				sprite.position = position
+				sprite.texture = blood_texture
+				get_parent().add_child(sprite)
+				SoundManager.play_death_sound()
 
 func action_done():
 	in_action = false	
@@ -230,8 +239,10 @@ func go_to_closest_dome():
 			closest_dome = dome
 	if closest_dome != null:
 		#vision_cone.monitoring = false
-		vision_cone.set_deferred("monitoring", false)
-		vision_cone.set_deferred("monitorable", false)
+		vision_cone.collision_layer = 0
+		vision_cone.collision_mask = 0
+		#vision_cone.set_deferred("monitoring", false)
+		#vision_cone.set_deferred("monitorable", false)
 		#vision_cone.monitorable = false
 		target = closest_dome.position
 		dome_target = closest_dome

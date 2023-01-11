@@ -31,7 +31,9 @@ var status = 0
 func add_to_panic():
 	var percent = float(panic_level) / float(max_panic_level) * 100
 	
-	if percent > 96:
+	if percent >= 100:
+		return false
+	elif percent > 96:
 		if !soldiers_attack_mother:
 			soldiers_attack_mother = true
 			
@@ -40,7 +42,7 @@ func add_to_panic():
 			var soldiers = get_tree().get_nodes_in_group("soldier")
 			for soldier in soldiers:
 				soldier.attack_mother_brain()
-	if percent > 84:
+	elif percent > 84:
 		if !domes_sealed:
 			domes_sealed = true
 			
@@ -49,12 +51,12 @@ func add_to_panic():
 			var domes = get_tree().get_nodes_in_group("dome")
 			for dome in domes:
 				dome.turn_on_spotlight(5)
-	if percent > 72:
+	elif percent > 72:
 		if !soldiers_replace_colonists:
 			soldiers_replace_colonists = true
 			
 			SoundManager.play_alert()
-	if percent > 60:
+	elif percent > 60:
 		if !dome_wall:
 			dome_wall = true
 			
@@ -65,12 +67,12 @@ func add_to_panic():
 				dome.turn_on_spotlight(4)
 				dome.action_wait_time *= 2
 				dome.max_action_spots *= 2
-	if percent > 48:
+	elif percent > 48:
 		if !soldiers_patrol:
 			soldiers_patrol = true
 			
 			SoundManager.play_alert()
-	if percent > 36:
+	elif percent > 36:
 		if !dome_turret:
 			dome_turret = true
 			
@@ -79,7 +81,7 @@ func add_to_panic():
 			var domes = get_tree().get_nodes_in_group("dome")
 			for dome in domes:
 				dome.turn_on_spotlight(3)
-	if percent > 24:
+	elif percent > 24:
 		if !dome_spotlight:
 			dome_spotlight = true
 			
@@ -88,16 +90,17 @@ func add_to_panic():
 			var domes = get_tree().get_nodes_in_group("dome")
 			for dome in domes:
 				dome.turn_on_spotlight(0)
-	if percent > 12:
+	elif percent > 12:
 		if !soldiers_spawn:
 			soldiers_spawn = true
 			
 			SoundManager.play_alert()
 			play_text(8)
+	
+	return true
 
 func max_panic():
 	panic_level = max_panic_level
-	print("max panic")
 	return panic_level
 
 func play_text(number):

@@ -146,7 +146,7 @@ func turn_off():
 	#for i in range(population):
 	#	pop_lights[i].visible = false
 		
-	food_timer.paused = true
+	food_timer.stop()
 	food_bar.visible = false
 	
 	turret.frame = 1
@@ -163,6 +163,20 @@ func turn_on():
 	food_bar.visible = true
 	
 	turret.frame = 0
+	
+	var rng = randi() % 4 + 1
+	for i in range(rng):
+		var dir = randi() % 4
+		var pos
+		if dir == 0:
+			pos = position + Vector2(rand_range(-80, -40), rand_range(-80, -40))
+		elif dir == 1:
+			pos = position + Vector2(rand_range(-80, -40), rand_range(40, 80))
+		elif dir == 2:
+			pos = position + Vector2(rand_range(40, 80), rand_range(40, 80))
+		else:
+			pos = position + Vector2(rand_range(40, 80), rand_range(-80, -40))
+		spawn_soldier(pos)
 	
 	if spotlight_build > 2:
 		vision_light.visible = true
@@ -194,11 +208,14 @@ func allow_drone():
 	return true
 
 func spawn_soldier(target):
+	if population <= 0:
+		return
+	
 	var solder = soldier_scene.instance()
 	solder.position = position + Vector2(0.1, 0)
+	get_parent().add_child(solder)
 	solder.set_home_dome(self)
 	solder.move_to_search(target)
-	get_parent().add_child(solder)
 	
 	remove_food()
 
@@ -255,8 +272,7 @@ func add_food():
 	population += 1
 	if population > max_population:
 		population = max_population
-		spawn_colonist()
-	else:
+	elif spotlight_build < 5:
 		pop_lights[population - 1].visible = true
 	
 	show_action = true
@@ -289,7 +305,6 @@ func _on_VisionCone_area_entered(area):
 		if !area.alive:
 			if !area.reported:
 				area.reported = true
-				print("report colonist")
 				spawn_soldier(area.position)
 
 func _on_VisionCone_area_exited(area):
@@ -344,6 +359,9 @@ func _on_BuildTimer_timeout():
 		vision_light.visible = true
 		turret_base.visible = true
 		turret.visible = true
+		
+		for pop in pop_lights:
+			pop.visible = false
 	else:
 		turret.play("turret")
 		turret.playing = false
@@ -384,3 +402,7 @@ func _on_PopChange_animation_finished():
 func _on_StartFoodTimer_timeout():
 	food_timer.start()
 	food_bar.visible = true
+
+func _on_Enemy_mouse_entered():
+	if spotlight_build < 5:
+		._on_Enemy_mouse_entered()

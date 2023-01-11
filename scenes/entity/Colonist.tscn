@@ -167,7 +167,6 @@ visible = false
 position = Vector2( 0, -9 )
 frames = SubResource( 17 )
 animation = "spotted"
-frame = 1
 playing = true
 
 [node name="ForceHome" type="Timer" parent="." index="9"]

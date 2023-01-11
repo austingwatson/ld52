@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=2]
+[gd_scene load_steps=38 format=2]
 
 [ext_resource path="res://scripts/ui/Hud.gd" type="Script" id=1]
 [ext_resource path="res://assets/ui/alert_bar_empty.png" type="Texture" id=2]
@@ -10,6 +10,10 @@
 [ext_resource path="res://assets/Xolonium-Regular.ttf" type="DynamicFontData" id=8]
 [ext_resource path="res://assets/ui/alert_bar_flash.png" type="Texture" id=9]
 [ext_resource path="res://assets/ui/psychic_energy_bar_flash.png" type="Texture" id=10]
+[ext_resource path="res://assets/ui/ability_dominate.png" type="Texture" id=11]
+[ext_resource path="res://assets/ui/ability_noise.png" type="Texture" id=12]
+[ext_resource path="res://assets/ui/ability_slow_time.png" type="Texture" id=13]
+[ext_resource path="res://assets/ui/ability_teleport.png" type="Texture" id=14]
 
 [sub_resource type="AtlasTexture" id=1]
 atlas = ExtResource( 4 )
@@ -59,10 +63,74 @@ animations = [ {
 "speed": 5.0
 } ]
 
+[sub_resource type="AtlasTexture" id=12]
+atlas = ExtResource( 12 )
+region = Rect2( 0, 0, 16, 18 )
+
+[sub_resource type="AtlasTexture" id=13]
+atlas = ExtResource( 12 )
+region = Rect2( 16, 0, 16, 18 )
+
+[sub_resource type="SpriteFrames" id=14]
+animations = [ {
+"frames": [ SubResource( 12 ), SubResource( 13 ) ],
+"loop": true,
+"name": "default",
+"speed": 5.0
+} ]
+
 [sub_resource type="DynamicFont" id=3]
 outline_size = 1
 outline_color = Color( 0, 0, 0, 1 )
 font_data = ExtResource( 8 )
+
+[sub_resource type="AtlasTexture" id=15]
+atlas = ExtResource( 14 )
+region = Rect2( 0, 0, 16, 18 )
+
+[sub_resource type="AtlasTexture" id=16]
+atlas = ExtResource( 14 )
+region = Rect2( 16, 0, 16, 18 )
+
+[sub_resource type="SpriteFrames" id=17]
+animations = [ {
+"frames": [ SubResource( 15 ), SubResource( 16 ) ],
+"loop": true,
+"name": "default",
+"speed": 5.0
+} ]
+
+[sub_resource type="AtlasTexture" id=18]
+atlas = ExtResource( 11 )
+region = Rect2( 0, 0, 16, 18 )
+
+[sub_resource type="AtlasTexture" id=19]
+atlas = ExtResource( 11 )
+region = Rect2( 16, 0, 16, 18 )
+
+[sub_resource type="SpriteFrames" id=20]
+animations = [ {
+"frames": [ SubResource( 18 ), SubResource( 19 ) ],
+"loop": true,
+"name": "default",
+"speed": 5.0
+} ]
+
+[sub_resource type="AtlasTexture" id=21]
+atlas = ExtResource( 13 )
+region = Rect2( 0, 0, 16, 18 )
+
+[sub_resource type="AtlasTexture" id=22]
+atlas = ExtResource( 13 )
+region = Rect2( 16, 0, 16, 18 )
+
+[sub_resource type="SpriteFrames" id=23]
+animations = [ {
+"frames": [ SubResource( 21 ), SubResource( 22 ) ],
+"loop": true,
+"name": "default",
+"speed": 5.0
+} ]
 
 [node name="Hud" type="CanvasLayer"]
 layer = 101
@@ -131,13 +199,12 @@ margin_top = 27.0
 margin_right = 490.0
 margin_bottom = 67.0
 rect_scale = Vector2( 0.5, 0.5 )
-color = Color( 0.564706, 0.321569, 0.737255, 1 )
+color = Color( 1, 1, 1, 0 )
 
-[node name="Name" type="Label" parent="Noise"]
-margin_right = 40.0
-margin_bottom = 14.0
-custom_fonts/font = SubResource( 3 )
-text = "PN"
+[node name="NoiseFlash" type="AnimatedSprite" parent="Noise"]
+position = Vector2( 20, 20 )
+scale = Vector2( 2, 2 )
+frames = SubResource( 14 )
 
 [node name="Key" type="Label" parent="Noise"]
 margin_right = 40.0
@@ -154,13 +221,12 @@ margin_top = 4.0
 margin_right = 466.0
 margin_bottom = 44.0
 rect_scale = Vector2( 0.5, 0.5 )
-color = Color( 0.564706, 0.321569, 0.737255, 1 )
+color = Color( 1, 1, 1, 0 )
 
-[node name="Name" type="Label" parent="Teleport"]
-margin_right = 40.0
-margin_bottom = 14.0
-custom_fonts/font = SubResource( 3 )
-text = "TD"
+[node name="TeleportFlash" type="AnimatedSprite" parent="Teleport"]
+position = Vector2( 20, 20 )
+scale = Vector2( 2, 2 )
+frames = SubResource( 17 )
 
 [node name="Key" type="Label" parent="Teleport"]
 margin_right = 40.0
@@ -177,13 +243,12 @@ margin_top = 27.0
 margin_right = 466.0
 margin_bottom = 67.0
 rect_scale = Vector2( 0.5, 0.5 )
-color = Color( 0.564706, 0.321569, 0.737255, 1 )
+color = Color( 1, 1, 1, 0 )
 
-[node name="Name" type="Label" parent="Dominate"]
-margin_right = 40.0
-margin_bottom = 14.0
-custom_fonts/font = SubResource( 3 )
-text = "PN"
+[node name="DominateFlash" type="AnimatedSprite" parent="Dominate"]
+position = Vector2( 20, 20 )
+scale = Vector2( 2, 2 )
+frames = SubResource( 20 )
 
 [node name="Key" type="Label" parent="Dominate"]
 margin_right = 40.0
@@ -200,13 +265,12 @@ margin_top = 4.0
 margin_right = 490.0
 margin_bottom = 44.0
 rect_scale = Vector2( 0.5, 0.5 )
-color = Color( 0.564706, 0.321569, 0.737255, 1 )
+color = Color( 1, 1, 1, 0 )
 
-[node name="Name" type="Label" parent="Slow"]
-margin_right = 40.0
-margin_bottom = 14.0
-custom_fonts/font = SubResource( 3 )
-text = "SA"
+[node name="SlowFlash" type="AnimatedSprite" parent="Slow"]
+position = Vector2( 20, 20 )
+scale = Vector2( 2, 2 )
+frames = SubResource( 23 )
 
 [node name="Key" type="Label" parent="Slow"]
 margin_right = 40.0
@@ -218,3 +282,7 @@ valign = 2
 
 [connection signal="timeout" from="FlashTimer" to="." method="_on_FlashTimer_timeout"]
 [connection signal="animation_finished" from="Mana/ManaFlash" to="." method="_on_ManaFlash_animation_finished"]
+[connection signal="animation_finished" from="Noise/NoiseFlash" to="." method="_on_NoiseFlash_animation_finished"]
+[connection signal="animation_finished" from="Teleport/TeleportFlash" to="." method="_on_TeleportFlash_animation_finished"]
+[connection signal="animation_finished" from="Dominate/DominateFlash" to="." method="_on_DominateFlash_animation_finished"]
+[connection signal="animation_finished" from="Slow/SlowFlash" to="." method="_on_SlowFlash_animation_finished"]
