@@ -79,9 +79,9 @@ animations = [ {
 
 [node name="Soldier" groups=["soldier"] instance=ExtResource( 1 )]
 script = ExtResource( 2 )
-max_action_spots = 3
-action_wait_time = 13.0
-speed = 25
+max_action_spots = 4
+action_wait_time = 8.0
+speed = 20
 guard_rotation_speed = 0.005
 
 [node name="AnimatedSprite" parent="." index="0"]
@@ -117,6 +117,13 @@ position = Vector2( -13, -1 )
 frames = SubResource( 10 )
 speed_scale = 2.0
 flip_h = true
+
+[node name="Action" parent="." index="9"]
+margin_left = -26.0
+margin_top = 7.0
+margin_right = 28.0
+margin_bottom = 27.0
+align = 1
 
 [node name="PatrolTimer" type="Timer" parent="." index="10"]
 wait_time = 5.0

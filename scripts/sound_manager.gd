@@ -12,6 +12,7 @@ var harvest_saw: AudioStreamPlayer
 var scoop: AudioStreamPlayer
 var hurray: AudioStreamPlayer
 var physic: AudioStreamPlayer
+var alert: AudioStreamPlayer
 
 func _ready():
 	music_db = AudioServer.get_bus_index("Music")
@@ -62,6 +63,11 @@ func _ready():
 	physic.bus = "Sound"
 	add_child(physic)
 	
+	alert = AudioStreamPlayer.new()
+	alert.stream = preload("res://assets/sounds/alert.wav")
+	alert.bus = "Sound"
+	add_child(alert)
+	
 func play_death_sound():
 	var rng = randi() % 4
 	match rng:
@@ -102,3 +108,6 @@ func play_hurray():
 func play_physic():
 	if !physic.playing:
 		physic.play()
+
+func play_alert():
+	alert.play()

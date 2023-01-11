@@ -136,11 +136,11 @@ animations = [ {
 [node name="Dome" groups=["dome"] instance=ExtResource( 1 )]
 z_index = 2
 script = ExtResource( 2 )
-max_action_spots = 4
-action_wait_time = 35.0
+max_action_spots = 5
+action_wait_time = 20.0
 population = 1
 max_population = 7
-spotlight_rotation_speed = 0.2
+spotlight_rotation_speed = 0.1
 
 [node name="AnimatedSprite" parent="." index="0"]
 frames = SubResource( 8 )
@@ -163,7 +163,7 @@ margin_right = 16.0
 margin_bottom = -24.0
 
 [node name="FoodTimer" type="Timer" parent="." index="4"]
-wait_time = 30.0
+wait_time = 25.0
 autostart = true
 
 [node name="FoodBar" type="TextureProgress" parent="." index="5"]
@@ -209,8 +209,10 @@ position = Vector2( 19, 6.5 )
 texture = ExtResource( 5 )
 
 [node name="Action" parent="." index="13"]
-margin_right = 66.0
-margin_bottom = 20.0
+margin_left = -32.0
+margin_top = 24.0
+margin_right = 34.0
+margin_bottom = 44.0
 text = "Harvest"
 
 [node name="TurretBase" type="Sprite" parent="." index="14"]

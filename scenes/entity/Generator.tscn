@@ -45,8 +45,8 @@ radius = 12.0
 [node name="Generator" groups=["generator"] instance=ExtResource( 1 )]
 z_index = 100
 script = ExtResource( 3 )
-max_action_spots = 2
-action_wait_time = 25.0
+max_action_spots = 3
+action_wait_time = 15.0
 
 [node name="AnimatedSprite" parent="." index="0"]
 frames = SubResource( 1 )
@@ -65,6 +65,10 @@ texture_under = ExtResource( 4 )
 texture_progress = ExtResource( 5 )
 
 [node name="Action" parent="." index="3"]
+margin_left = -37.0
+margin_top = 8.0
+margin_right = 42.0
+margin_bottom = 28.0
 text = "Sabotage"
 
 [node name="Line2D" type="Line2D" parent="." index="4"]
@@ -73,7 +77,7 @@ width = 2.0
 default_color = Color( 0.368627, 0.443137, 0.556863, 1 )
 
 [node name="PowerTimer" type="Timer" parent="." index="5"]
-wait_time = 35.0
+wait_time = 30.0
 one_shot = true
 
 [connection signal="timeout" from="PowerTimer" to="." method="_on_PowerTimer_timeout"]

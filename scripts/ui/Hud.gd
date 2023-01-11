@@ -15,10 +15,10 @@ var flashes = 2
 
 func _process(delta):
 	if WorldBounds.noise_av:
-		mana.visible = true
 		noise.visible = true
 	if WorldBounds.slow_av:
 		slow.visible = true
+		mana.visible = true
 	if WorldBounds.teleport_av:
 		teleport.visible = true
 	if WorldBounds.dominate_av:

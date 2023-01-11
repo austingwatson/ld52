@@ -151,6 +151,7 @@ func stop_action(enemy, enemy_min_distance):
 	state = State.Idle
 	animated_sprite.play("alive")
 	
+	action_target = null
 	self.enemy = enemy
 	self.enemy_min_distance = enemy_min_distance
 	
@@ -194,6 +195,9 @@ func remove_commands():
 	commands.add_point(position)
 
 func move_to(target):
+	if action_target != null and is_instance_valid(action_target):
+		action_target.remove_from_action_spot()
+	
 	action_target = null
 	self.target = target
 	state = State.Moving
@@ -201,7 +205,11 @@ func move_to(target):
 func action_move_to(action_target):
 	if !is_instance_valid(action_target):
 		return
+			
 	self.action_target = action_target
+	
+	self.action_target.add_to_action_spot()
+	
 	self.target = action_target.position
 	state = State.ActionMoving
 	
@@ -209,6 +217,9 @@ func action_move_to(action_target):
 		if self.action_target == enemy:
 			state = State.Idle
 			break
+
+func is_idle():
+	return state == State.Idle
 
 func is_action_moving():
 	if state == State.ActionMoving:
@@ -220,7 +231,7 @@ func _on_Drone_area_entered(area):
 	if area == self:
 		return
 	
-	if area.is_in_group("enemy"):
+	if area.is_in_group("dome"):
 		flock_enemies.append(area)
 	elif area.is_in_group("drone"):
 		flock_drones.append(area)
@@ -229,7 +240,7 @@ func _on_Drone_area_exited(area):
 	if area == self:
 		return
 	
-	if area.is_in_group("enemy"):
+	if area.is_in_group("dome"):
 		flock_enemies.erase(area)
 	elif area.is_in_group("drone"):
 		flock_drones.erase(area)

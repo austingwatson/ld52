@@ -1,12 +1,12 @@
 extends Node
 
 const world_bounds_left = Vector2(-480, -430)
-const world_bounds_right = Vector2(480, 305)
+const world_bounds_right = Vector2(480, 360)
 
 var in_world = false
 
 var panic_level = 0
-var max_panic_level = 30
+var max_panic_level = 40
 var dome_spotlight = false
 var dome_turret = false
 var soldiers_spawn = false
@@ -22,17 +22,20 @@ var teleport_av = false
 var dominate_av = false
 
 var drones_selected = false
+var drones_selected_has_brain = false
 
 var play_win_cutscene = false
 var play_lost_cutscene = false
 var status = 0
 
-func _process(delta):
+func add_to_panic():
 	var percent = float(panic_level) / float(max_panic_level) * 100
 	
 	if percent > 96:
 		if !soldiers_attack_mother:
 			soldiers_attack_mother = true
+			
+			SoundManager.play_alert()
 			
 			var soldiers = get_tree().get_nodes_in_group("soldier")
 			for soldier in soldiers:
@@ -41,15 +44,21 @@ func _process(delta):
 		if !domes_sealed:
 			domes_sealed = true
 			
+			SoundManager.play_alert()
+			
 			var domes = get_tree().get_nodes_in_group("dome")
 			for dome in domes:
 				dome.turn_on_spotlight(5)
 	if percent > 72:
 		if !soldiers_replace_colonists:
 			soldiers_replace_colonists = true
+			
+			SoundManager.play_alert()
 	if percent > 60:
 		if !dome_wall:
 			dome_wall = true
+			
+			SoundManager.play_alert()
 			
 			var domes = get_tree().get_nodes_in_group("dome")
 			for dome in domes:
@@ -59,23 +68,32 @@ func _process(delta):
 	if percent > 48:
 		if !soldiers_patrol:
 			soldiers_patrol = true
+			
+			SoundManager.play_alert()
 	if percent > 36:
-		if !soldiers_spawn:
-			soldiers_spawn = true
-	if percent > 24:
 		if !dome_turret:
 			dome_turret = true
+			
+			SoundManager.play_alert()
 			
 			var domes = get_tree().get_nodes_in_group("dome")
 			for dome in domes:
 				dome.turn_on_spotlight(3)
-	if percent > 12:
+	if percent > 24:
 		if !dome_spotlight:
 			dome_spotlight = true
+			
+			SoundManager.play_alert()
 			
 			var domes = get_tree().get_nodes_in_group("dome")
 			for dome in domes:
 				dome.turn_on_spotlight(0)
+	if percent > 12:
+		if !soldiers_spawn:
+			soldiers_spawn = true
+			
+			SoundManager.play_alert()
+			play_text(8)
 
 func max_panic():
 	panic_level = max_panic_level

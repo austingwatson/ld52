@@ -74,7 +74,7 @@ func _physics_process(delta):
 	
 	if turret_on:
 		if drones.size() > 0:
-			vision_cone.rotation = lerp_angle(vision_cone.rotation, vision_cone.position.direction_to(drones[0].position).angle(), 1 * delta)
+			vision_cone.rotation = lerp_angle(vision_cone.rotation, vision_cone.position.direction_to(drones[0].position).angle(), 0.7 * delta)
 			
 			if !doing_action:
 				target_drone = drones[0]
@@ -84,7 +84,7 @@ func _physics_process(delta):
 			vision_cone.rotate(spotlight_rotation_speed * delta)
 	elif spotlight_on:
 		if drones.size() > 0:
-			vision_cone.rotation = lerp_angle(vision_cone.rotation, vision_cone.position.direction_to(drones[0].position).angle(), 1 * delta)
+			vision_cone.rotation = lerp_angle(vision_cone.rotation, vision_cone.position.direction_to(drones[0].position).angle(), 0.7 * delta)
 			
 			if !doing_action:
 				target_drone = drones[0]
@@ -110,14 +110,27 @@ func _process(delta):
 	else:
 		animated_sprite.play("unpowered")
 
+func allow_action():
+	if population <= 0:
+		return false
+	elif spotlight_build < 5:
+		return true
+	else:
+		return false
+
 func turret_look_at(position):
 	vision_cone.rotation = position.direction_to(vision_cone.position).angle() + PI
 
 func turn_off():
-	.turn_off()
+	if spotlight_build >= 5:
+		on = false
+		collision_layer = 0
+		collision_mask = 0
+	else:
+		on = false
 	
-	for i in range(population):
-		pop_lights[i].visible = false
+	#for i in range(population):
+	#	pop_lights[i].visible = false
 		
 	food_timer.paused = true
 	food_bar.visible = false
@@ -128,8 +141,8 @@ func turn_off():
 func turn_on():
 	.turn_on()
 	
-	for i in range(population):
-		pop_lights[i].visible = true
+	#for i in range(population):
+	#	pop_lights[i].visible = true
 	
 	food_timer.paused = false
 	food_timer.start()
@@ -155,7 +168,8 @@ func action_done():
 		if not brain_given:
 			return
 		
-		get_parent().add_to_panic(1)
+		if on:
+			get_parent().add_to_panic(1)
 		remove_food()
 
 func turn_on_spotlight(build):
@@ -163,11 +177,12 @@ func turn_on_spotlight(build):
 	spotlight_build = build
 
 func allow_drone():
-	return on
+	return true
 
 func spawn_soldier(target):
 	var solder = soldier_scene.instance()
-	solder.position = position
+	solder.position = position + Vector2(0.1, 0)
+	solder.set_home_dome(self)
 	solder.move_to_search(target)
 	get_parent().add_child(solder)
 	
@@ -178,7 +193,7 @@ func spawn_colonist():
 	
 	var rng = 0
 	if WorldBounds.soldiers_spawn:
-		rng = randi() % 120
+		rng = randi() % 140
 	else:
 		rng = randi() % 100
 	if rng < 10:
@@ -206,7 +221,8 @@ func spawn_colonist():
 	rng = randi() % domes.size()
 	var target_dome = domes[rng]
 	
-	colonist.position = position
+	colonist.position = position + Vector2(0.1, 0)
+	colonist.set_home_dome(self)
 	
 	if colonist.is_in_group("soldier"):
 		if WorldBounds.soldiers_attack_mother:

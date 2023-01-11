@@ -5,6 +5,8 @@ onready var cloud_layer = $ParallaxBackground/ParallaxLayer
 onready var hud = $Hud
 onready var click_spot = $ClickSpot
 onready var mother_brain = $MotherBrain
+onready var double_click_timer = $DoubleClickTimer
+onready var restart_timer = $RestartTimer
 
 const dome_scene = preload("res://scenes/entity/Dome.tscn")
 const drone_scene = preload("res://scenes/entity/Drone.tscn")
@@ -41,6 +43,8 @@ var queue_modifier = false
 var mother_ship_accel = 5.0
 var start_lose_timer = false
 
+var double_click = 0
+
 func _ready():
 	select_query.collide_with_bodies = false
 	select_query.collide_with_areas = true
@@ -61,13 +65,19 @@ func _unhandled_input(event):
 	if event.is_action_pressed("select_units"):
 		dragging = true
 		drag_start = get_global_mouse_position()
+		double_click += 1
+		double_click_timer.start()
 		
 	# when mouse 1 is lifted the rectangle stops drawing
 	# and the selected units are found
 	elif event.is_action_released("select_units"):
 		dragging = false
 		update()
-		select_units(get_global_mouse_position())
+		
+		if double_click <= 1:
+			select_units(get_global_mouse_position())
+		else:
+			select_from_double_click()
 		
 	elif event.is_action_pressed("basic_action"):
 		var mouse_pos = get_global_mouse_position()
@@ -128,6 +138,11 @@ func _unhandled_input(event):
 		
 		for drone in get_tree().get_nodes_in_group("drone"):
 			drone.holding_shift(false)
+	
+	elif event.is_action_pressed("restart"):
+		restart_timer.start()
+	elif event.is_action_released("restart"):
+		restart_timer.stop()
 	
 	if event is InputEventMouseMotion:
 		mouse_pos = event.position
@@ -216,8 +231,10 @@ func generate_map(difficulty):
 		var valid = false
 		while !valid:
 			valid = true
-			x = randi() % 81 - 40
-			y = randi() % 61 - 40
+			x = int(rand_range(-40, 40))
+			y = int(rand_range(-35, 25))
+			#x = randi() % 81 - 40
+			#y = randi() % 61 - 40
 			y += sy
 			
 			for d in domes:
@@ -294,7 +311,7 @@ func start_lost_cutscene():
 
 # query the physics engine based on the rectangle created
 func select_units(drag_end):
-	select_rect.extents = (drag_end - drag_start) / 2		
+	select_rect.extents = (drag_end - drag_start) / 2	
 	
 	var space = get_world_2d().direct_space_state
 	select_query.set_shape(select_rect)
@@ -314,8 +331,45 @@ func select_units(drag_end):
 			
 	if selected.size() > 0:
 		WorldBounds.drones_selected = true
+		
+		var has_brain = false
+		for drone in selected:
+			if drone.holding_brain():
+				has_brain = true
+				break
+		WorldBounds.drones_selected_has_brain = has_brain
 	else:
 		WorldBounds.drones_selected = false
+		WorldBounds.drones_selected_has_brain = false
+
+func select_from_double_click():
+	var space = get_world_2d().direct_space_state
+	var collision_objects = space.intersect_point(get_global_mouse_position(), 1, [], 0x7FFFFFFF, true, true)
+		
+	var selected_drone = 0
+	
+	for collision in collision_objects:
+		if collision.collider.is_in_group("drone"):
+			selected_drone = 1
+			if collision.collider.holding_brain():
+				selected_drone = 2
+	if selected_drone != 0:
+		for drone in selected:
+			if is_instance_valid(drone):
+				drone.deselect()
+		selected.clear()
+		
+		var drones = get_tree().get_nodes_in_group("drone")
+		for drone in drones:
+			if !drone.is_idle():
+				continue
+			
+			if selected_drone == 1 and !drone.holding_brain():
+				drone.select()
+				selected.append(drone)
+			elif selected_drone == 2 and drone.holding_brain():
+				drone.select()
+				selected.append(drone)
 
 func action(position):	
 	var space = get_world_2d().direct_space_state
@@ -346,43 +400,54 @@ func move_units(position):
 		unit.remove_commands()
 
 func work_units(enemy_unit):
-	var amount = 0
+	print(enemy_unit)
 	
-	for unit in selected:
-		if !enemy_unit.is_in_group("mother_brain") && unit.holding_brain():
+	if !enemy_unit.allow_action():
+		return
+	
+	var max_allowed = min(selected.size(), enemy_unit.action_spots_left())
+	
+	for i in range(max_allowed):
+		if enemy_unit.is_in_group("mother_brain"):
+			if !selected[i].holding_brain():
+				continue
+		elif selected[i].holding_brain():
 			continue
 		
 		if enemy_unit.is_in_group("dome") && WorldBounds.domes_sealed:
 			continue	
 		
-		unit.action_move_to(enemy_unit)
-		unit.remove_commands()
-		
-		amount += 1
-		if amount >= enemy_unit.max_action_spots:
-			break
+		selected[i].action_move_to(enemy_unit)
+		selected[i].remove_commands()
 
 func move_units_with_queue(position):
 	for unit in selected:
 		unit.add_action("move_to", position, position)
 	
 func work_units_with_queue(enemy_unit):
-	var amount = 0
+	if !enemy_unit.allow_action():
+		return
 	
-	for unit in selected:
-		if !enemy_unit.is_in_group("mother_brain") && unit.holding_brain():
+	var max_allowed = min(selected.size(), enemy_unit.action_spots_left())
+	
+	for i in range(max_allowed):
+		if enemy_unit.is_in_group("mother_brain"):
+			if !selected[i].holding_brain():
+				continue
+		elif selected[i].holding_brain():
 			continue
-		unit.add_action("action_move_to", enemy_unit, enemy_unit.position)
 		
-		amount += 1
-		if amount >= enemy_unit.max_action_spots:
-			break
+		if enemy_unit.is_in_group("dome") && WorldBounds.domes_sealed:
+			continue
+		
+		selected[i].add_action("action_move_to", enemy_unit, enemy_unit.position)
 
 func get_selected():
 	return selected
 
 func add_to_panic(amount):
 	WorldBounds.panic_level += amount
+	WorldBounds.add_to_panic()
 	hud.add_to_panic(amount)
 
 func add_to_mana(amount):
@@ -394,3 +459,9 @@ func _on_ClickSpot_animation_finished():
 
 func _on_LoseTimer_timeout():
 	get_tree().change_scene("res://scenes/GameOverScreen.tscn")
+
+func _on_DoubleClickTimer_timeout():
+	double_click = 0
+
+func _on_RestartTimer_timeout():
+	get_tree().change_scene("res://scenes/TitleScreen.tscn")

@@ -32,5 +32,4 @@ animations = [ {
 [node name="DominationEffect" type="AnimatedSprite" parent="." index="10"]
 position = Vector2( -1, -5 )
 frames = SubResource( 5 )
-frame = 2
 playing = true

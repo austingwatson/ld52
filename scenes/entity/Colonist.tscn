@@ -108,8 +108,8 @@ animations = [ {
 
 [node name="Colonist" groups=["colonist"] instance=ExtResource( 1 )]
 script = ExtResource( 2 )
-max_action_spots = 2
-action_wait_time = 10.0
+max_action_spots = 3
+action_wait_time = 5.0
 speed = 10
 min_rotation = -5.0
 max_rotation = 5.0
@@ -146,9 +146,12 @@ polygon = PoolVector2Array( 37, -10, 37, 9, 10, 0 )
 one_shot = true
 
 [node name="Action" parent="." index="5"]
-margin_right = 54.0
-margin_bottom = 20.0
+margin_left = -27.0
+margin_top = 3.0
+margin_right = 27.0
+margin_bottom = 23.0
 text = "Kill"
+align = 1
 
 [node name="IdleTimer" type="Timer" parent="." index="6"]
 wait_time = 10.0

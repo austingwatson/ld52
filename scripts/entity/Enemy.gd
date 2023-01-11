@@ -4,6 +4,7 @@ onready var collision_shape = $CollisionShape2D
 onready var texture_progress = $TextureProgress
 onready var action = $Action
 
+var current_action_spots = 0
 export var max_action_spots = 1
 var current_drones = []
 export var action_wait_time = 1.0
@@ -41,6 +42,11 @@ func action_done():
 	texture_progress.visible = false
 	for drone in current_drones:
 		drone.stop_action(self, action_range_radius)
+		
+	current_action_spots = 0
+
+func allow_action():
+	return true
 
 func turn_on():
 	on = true
@@ -51,6 +57,15 @@ func turn_off():
 	on = false
 	collision_layer = 0
 	collision_mask = 0
+
+func add_to_action_spot():
+	current_action_spots += 1
+
+func remove_from_action_spot():
+	current_action_spots -= 1
+
+func action_spots_left():
+	return max_action_spots - current_action_spots
 
 func _on_Enemy_area_entered(area):
 	if not area.is_in_group("drone"):

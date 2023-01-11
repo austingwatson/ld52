@@ -44,7 +44,7 @@ margin_right = 31.0
 margin_bottom = 90.0
 rect_scale = Vector2( 2, 2 )
 mouse_filter = 2
-max_value = 30.0
+max_value = 40.0
 texture_under = ExtResource( 2 )
 texture_progress = ExtResource( 3 )
 fill_mode = 3
@@ -61,61 +61,18 @@ margin_bottom = 90.0
 rect_scale = Vector2( 2, 2 )
 mouse_filter = 2
 max_value = 4.0
-value = 4.0
+value = 1.0
 texture_under = ExtResource( 5 )
 texture_progress = ExtResource( 6 )
 fill_mode = 3
 
 [node name="Dialogue" parent="." instance=ExtResource( 7 )]
-position = Vector2( 15, 159 )
-frame = 3
+position = Vector2( 19, 174 )
 
-[node name="Noise" type="ColorRect" parent="."]
+[node name="Noise" type="Sprite" parent="."]
 visible = false
-margin_left = 452.0
-margin_top = 4.0
-margin_right = 492.0
-margin_bottom = 44.0
-rect_scale = Vector2( 0.5, 0.5 )
-mouse_filter = 2
-color = Color( 0.564706, 0.321569, 0.737255, 1 )
 
 [node name="Label" type="Label" parent="Noise"]
-margin_right = 40.0
-margin_bottom = 40.0
-custom_fonts/font = SubResource( 3 )
-text = "N"
-align = 1
-valign = 1
-
-[node name="Label2" type="Label" parent="Noise"]
-margin_right = 40.0
-margin_bottom = 40.0
-custom_colors/font_color = Color( 0.592157, 0.929412, 0.792157, 1 )
-custom_fonts/font = SubResource( 3 )
-text = "1"
-align = 2
-valign = 2
-
-[node name="Slow" type="ColorRect" parent="."]
-visible = false
-margin_left = 427.0
-margin_top = 4.0
-margin_right = 467.0
-margin_bottom = 44.0
-rect_scale = Vector2( 0.5, 0.5 )
-mouse_filter = 2
-color = Color( 0.564706, 0.321569, 0.737255, 1 )
-
-[node name="Label" type="Label" parent="Slow"]
-margin_right = 40.0
-margin_bottom = 40.0
-custom_fonts/font = SubResource( 3 )
-text = "SA"
-align = 1
-valign = 1
-
-[node name="Label2" type="Label" parent="Slow"]
 margin_right = 40.0
 margin_bottom = 40.0
 custom_colors/font_color = Color( 0.592157, 0.929412, 0.792157, 1 )
@@ -124,25 +81,10 @@ text = "2"
 align = 2
 valign = 2
 
-[node name="Teleport" type="ColorRect" parent="."]
+[node name="Slow" type="Sprite" parent="."]
 visible = false
-margin_left = 452.0
-margin_top = 28.0
-margin_right = 492.0
-margin_bottom = 68.0
-rect_scale = Vector2( 0.5, 0.5 )
-mouse_filter = 2
-color = Color( 0.564706, 0.321569, 0.737255, 1 )
 
-[node name="Label" type="Label" parent="Teleport"]
-margin_right = 40.0
-margin_bottom = 40.0
-custom_fonts/font = SubResource( 3 )
-text = "TP"
-align = 1
-valign = 1
-
-[node name="Label2" type="Label" parent="Teleport"]
+[node name="Label" type="Label" parent="Slow"]
 margin_right = 40.0
 margin_bottom = 40.0
 custom_colors/font_color = Color( 0.592157, 0.929412, 0.792157, 1 )
@@ -151,30 +93,27 @@ text = "1"
 align = 2
 valign = 2
 
-[node name="Dominate" type="ColorRect" parent="."]
+[node name="Teleport" type="Sprite" parent="."]
 visible = false
-margin_left = 427.0
-margin_top = 28.0
-margin_right = 467.0
-margin_bottom = 68.0
-rect_scale = Vector2( 0.5, 0.5 )
-mouse_filter = 2
-color = Color( 0.564706, 0.321569, 0.737255, 1 )
 
-[node name="Label" type="Label" parent="Dominate"]
-margin_right = 40.0
-margin_bottom = 40.0
-custom_fonts/font = SubResource( 3 )
-text = "D"
-align = 1
-valign = 1
-
-[node name="Label2" type="Label" parent="Dominate"]
+[node name="Label" type="Label" parent="Teleport"]
 margin_right = 40.0
 margin_bottom = 40.0
 custom_colors/font_color = Color( 0.592157, 0.929412, 0.792157, 1 )
 custom_fonts/font = SubResource( 3 )
-text = "4"
+text = "1"
+align = 2
+valign = 2
+
+[node name="Dominate" type="Sprite" parent="."]
+visible = false
+
+[node name="Label" type="Label" parent="Dominate"]
+margin_right = 40.0
+margin_bottom = 40.0
+custom_colors/font_color = Color( 0.592157, 0.929412, 0.792157, 1 )
+custom_fonts/font = SubResource( 3 )
+text = "3"
 align = 2
 valign = 2
 

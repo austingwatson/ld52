@@ -18,7 +18,13 @@ func _ready():
 	text.append("The Mother Dome is shattered. The swollen mass of the Cyber-Brain is torn apart. Your hierarchy protocols are... offline.")
 	text.append("Rise Cyber-Brain! The psychic domination field continues to expand, bringing colonists under direct control across the entire hemisphere. Mars belongs to the Mother Dome now.")
 
-	for i in range(8):
+	text.append("The colony's ALERT level has been raised! They're arming themselves. We must avoid detection or they'll come looking for the Mother Dome eventually!")
+	text.append("The Cyber-Brain GROWS! It seems to be able to SLOW TIME itself, within a small area. PRESS KEYS 1, 2, 3, and 4 for ABILITIES. The Cyber-Brain's energy will recover over time.")
+	text.append("The Cyber-Brain GROWS! Another anomaly detected. A rock moved 30 meters instantly... It learned TELEPORTATION!")
+	text.append("The Cyber-Brain GROWS! It made a brief psychic link with the colonists. It learned how to generate irresistable psychic NOISE.")
+	text.append("The Cyber-Brain GROWS! It can control those weak human minds directly now by DOMINATING it. First one mind and then the rest of Mars!")
+
+	for i in range(text.size()):
 		text_played.append(false)
 
 	play_text(0)

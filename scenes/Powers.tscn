@@ -31,7 +31,7 @@ animations = [ {
 "speed": 5.0
 } ]
 
-[node name="Powers" type="Node2D"]
+[node name="Powers" type="Node2D" groups=["powers"]]
 script = ExtResource( 1 )
 noise_range = 150
 
@@ -47,8 +47,6 @@ one_shot = true
 [node name="SlowTimer" type="Timer" parent="."]
 one_shot = true
 
-[node name="Timer4" type="Timer" parent="."]
-
 [node name="Pulse" type="AnimatedSprite" parent="."]
 visible = false
 z_index = 1
@@ -56,8 +54,7 @@ frames = SubResource( 8 )
 speed_scale = 2.0
 
 [node name="ManaTimer" type="Timer" parent="."]
-wait_time = 10.0
-autostart = true
+wait_time = 8.0
 
 [connection signal="timeout" from="NoiseTimer" to="." method="_on_NoiseTimer_timeout"]
 [connection signal="timeout" from="TeleportTimer" to="." method="_on_TeleportTimer_timeout"]

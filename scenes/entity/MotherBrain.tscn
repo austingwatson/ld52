@@ -195,13 +195,12 @@ animations = [ {
 z_index = 10
 script = ExtResource( 3 )
 max_action_spots = 25
-action_wait_time = 60.0
+action_wait_time = 0.5
 brains_needed = 30
 
 [node name="AnimatedSprite" parent="." index="0"]
 frames = SubResource( 4 )
 animation = "stage1"
-frame = 1
 speed_scale = 0.25
 playing = true
 
@@ -224,9 +223,11 @@ mouse_filter = 2
 texture_progress = ExtResource( 4 )
 
 [node name="Action" parent="." index="4"]
-margin_right = 84.0
-margin_bottom = 20.0
-text = "Deposit Brain"
+margin_left = -46.0
+margin_top = 26.0
+margin_right = 48.0
+margin_bottom = 46.0
+text = "Install Mind"
 
 [node name="Hurt" type="AnimatedSprite" parent="." index="5"]
 visible = false

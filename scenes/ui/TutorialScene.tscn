@@ -27,7 +27,7 @@ margin_bottom = 266.0
 custom_fonts/font = SubResource( 1 )
 text = "You have a limited number of drones. Multiple working together complete tasks faster.
 
-The colonists outnumer you, so you must move carefully. You can queue up multiple commands by holding SHIFT during orders.
+The colonists outnumber you, so you must move carefully. You can queue up multiple commands by holding SHIFT during orders.
 
 Colonists will raise the alert level when your presence is noticed. Your drones scare them and so do dead bodies. You will ALWAYS be noticed harvesting from a powered habitat.
 
@@ -47,6 +47,7 @@ margin_bottom = 266.0
 custom_fonts/font = SubResource( 1 )
 text = " Controls:
   left click - select unit
+  double left click - select all drones of that type not currently doing something
   hold left click and move mouse - selection rectangle
   right click - order units
   shift + order - adds order to queue
@@ -54,12 +55,13 @@ text = " Controls:
   wasd - move screen
   hover mouse near screen - move screen
   scroll wheel - zoom
+ r - hold for 3 seconds to go back to title screen
 
  You get these abilities with enough brains (Will appear in top right):
-  1 - create a noise ability
-  2 - create a time slow field
-  3 - teleport your units
-  4 - mind control a colonist"
+  Key 1 - create a time slow field
+  Key 2 - teleport your units
+  Key 3 - create a noise that colonists move to
+  Key 4 - mind control a colonist"
 autowrap = true
 
 [node name="Play" type="TextureButton" parent="."]

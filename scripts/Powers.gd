@@ -11,7 +11,7 @@ onready var teleport_timer = $TeleportTimer
 onready var dominate_timer = $DominateTimer
 
 export var max_mana = 4
-var mana = max_mana
+var mana = 1
 
 export var noise_range = 200
 var can_use_noise = true
@@ -52,8 +52,8 @@ func _unhandled_input(event):
 			can_use_noise = false
 			noise_timer.start()
 		
-			mana -= 1
-			get_parent().add_to_mana(-1)
+			mana -= 2
+			get_parent().add_to_mana(-2)
 			
 			SoundManager.play_physic()
 	elif can_use_slow && WorldBounds.slow_av && event.is_action_pressed("slow"):
@@ -73,8 +73,8 @@ func _unhandled_input(event):
 			can_use_slow = false
 			slow_timer.start()
 		
-			mana -= 2
-			get_parent().add_to_mana(-2)
+			mana -= 1
+			get_parent().add_to_mana(-1)
 			
 			SoundManager.play_physic()
 	elif can_use_teleport && WorldBounds.teleport_av && event.is_action_pressed("teleport"):
@@ -96,7 +96,7 @@ func _unhandled_input(event):
 					selected[i].position = mouse_pos + Vector2(i, i)
 			
 				mana -= 1
-				get_parent().add_to_mana(-3)
+				get_parent().add_to_mana(-1)
 				
 				SoundManager.play_physic()
 	elif can_use_dominate && WorldBounds.dominate_av && event.is_action_pressed("dominate"):
@@ -120,9 +120,12 @@ func _unhandled_input(event):
 			enemy_unit.queue_free()
 			
 			mana -= 3
-			get_parent().add_to_mana(-4)
+			get_parent().add_to_mana(-3)
 			
 			SoundManager.play_physic()
+
+func start_mana_timer():
+	mana_timer.start()
 
 func _on_NoiseTimer_timeout():
 	can_use_noise = true

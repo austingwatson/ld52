@@ -120,6 +120,18 @@ func _physics_process(delta):
 	elif fight_state == FightState.AttackMotherBrain:
 		if mother_brain_in_range && can_shoot:
 			shoot()
+			
+	if in_dome && state == State.Searching:
+		if slowed:
+			delta *= 0.25
+		
+		var direction = -position.direction_to(home_dome.position)
+		position += direction * speed * delta
+		
+		if direction.x >= 0:
+			animated_sprite.flip_h = false
+		else:
+			animated_sprite.flip_h = true
 
 func _exit_tree():
 	if colonist_to_drag != null && is_instance_valid(colonist_to_drag):

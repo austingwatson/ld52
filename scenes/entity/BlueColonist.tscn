@@ -54,5 +54,9 @@ frames = SubResource( 4 )
 [node name="CollisionShape2D" parent="." index="1"]
 shape = SubResource( 5 )
 
-[node name="Alert" parent="." index="8"]
-frame = 0
+[node name="Action" parent="." index="5"]
+margin_left = -28.0
+margin_top = 5.0
+margin_right = 26.0
+margin_bottom = 25.0
+align = 1

@@ -59,14 +59,26 @@ func calculate_stage():
 	elif percent >= 68:
 		animated_sprite.play("stage5")
 		WorldBounds.dominate_av = true
+		WorldBounds.play_text(12)
 	elif percent >= 51:
 		animated_sprite.play("stage4")
-		WorldBounds.teleport_av = true
+		WorldBounds.noise_av = true
+		WorldBounds.play_text(11)
 	elif percent >= 34:
 		animated_sprite.play("stage3")
-		WorldBounds.slow_av = true
+		WorldBounds.teleport_av = true
+		WorldBounds.play_text(10)
 	elif percent >= 17:
+		if !WorldBounds.slow_av:
+			var powers = get_tree().get_nodes_in_group("powers")
+			powers[0].start_mana_timer()
+		WorldBounds.slow_av = true
+		WorldBounds.play_text(9)
+	elif brains >= 1:
 		animated_sprite.play("stage2")
-		WorldBounds.noise_av = true
 	else:
 		animated_sprite.play("stage1")
+
+func _on_Enemy_mouse_entered():
+	if WorldBounds.drones_selected_has_brain && show_action:
+		action.visible = true

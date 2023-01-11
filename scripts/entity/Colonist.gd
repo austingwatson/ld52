@@ -33,6 +33,9 @@ var reported = false
 var killed = false
 
 var force_home = false
+var in_dome = false
+var home_dome = null
+var drones_in_range = 0
 
 enum PanicState {
 	Calm,
@@ -75,6 +78,12 @@ func _physics_process(delta):
 	
 	if velocity.length() == 0:
 		rotation_degrees = 0
+		
+	if in_dome && state == State.Searching:
+		search_timer.start()
+
+func set_home_dome(dome):
+	home_dome = dome
 
 func move(delta):
 	if slowed:
@@ -234,6 +243,7 @@ func _on_SearchTimer_timeout():
 	panic_state = PanicState.Panic
 	animated_sprite.play("panic")
 	alert.play("panic")
+	vision_cone.visible = false
 	
 	go_to_closest_dome()
 
@@ -242,9 +252,11 @@ func _on_VisionCone_area_entered(area):
 		return
 	
 	if area.is_in_group("drone"):
+		drones_in_range += 1
 		if state != State.Searching:
 			alert.play("spotted")
-			alert.visible = true
+			if !in_dome:
+				alert.visible = true
 			state = State.Searching
 			search_timer.start()
 	elif area.is_in_group("colonist"):
@@ -264,11 +276,14 @@ func _on_VisionCone_area_exited(area):
 		return
 	
 	if area.is_in_group("drone"):
-		search_timer.stop()
+		drones_in_range -= 1
 		
-		if state == State.Searching:
-			state = State.Moving
-			alert.visible = false
+		if drones_in_range <= 0: 
+			search_timer.stop()
+		
+			if state == State.Searching:
+				state = State.Moving
+				alert.visible = false
 
 func _on_IdleTimer_timeout():
 	go_to_closest_dome()
@@ -277,10 +292,14 @@ func _on_IdleTimer_timeout():
 func _on_Colonist_area_entered(area):
 	if area.is_in_group("dome"):
 		vision_cone.visible = false
+		in_dome = true
 
 func _on_Colonist_area_exited(area):
 	if alive and area.is_in_group("dome"):
 		vision_cone.visible = true
+		in_dome = false
+		if state == State.Searching:
+			alert.visible = true
 
 func _on_HarvestEffect_animation_finished():
 	harvest_effect.visible = false
