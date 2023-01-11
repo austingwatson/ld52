@@ -363,13 +363,14 @@ func _on_BuildTimer_timeout():
 		for pop in pop_lights:
 			pop.visible = false
 	else:
-		turret.play("turret")
-		turret.playing = false
-		turret.frame = 0
-		turret_on = true
-		vision_light.visible = true
-		turret_base.visible = true
-		turret.visible = true
+		if on:
+			turret.play("turret")
+			turret.playing = false
+			turret.frame = 0
+			turret_on = true
+			vision_light.visible = true
+			turret_base.visible = true
+			turret.visible = true
 		dome_wall.play("full")
 		dome_wall.visible = true
 		dome_wall.frame = 1

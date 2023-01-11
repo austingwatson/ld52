@@ -15,6 +15,9 @@ var physic: AudioStreamPlayer
 var alert: AudioStreamPlayer
 var bing: AudioStreamPlayer
 
+var final_alert = 0
+var timer: Timer
+
 func _ready():
 	music_db = AudioServer.get_bus_index("Music")
 	sound_db = AudioServer.get_bus_index("Sound")
@@ -74,6 +77,11 @@ func _ready():
 	bing.bus = "Sound"
 	add_child(bing)
 	
+	timer = Timer.new()
+	timer.connect("timeout", self, "_on_Timer_timeout")
+	timer.one_shot = true
+	add_child(timer)
+	
 func play_death_sound():
 	var rng = randi() % 4
 	match rng:
@@ -121,3 +129,16 @@ func play_alert():
 func play_bing():
 	if !bing.playing:
 		bing.play()
+
+func play_final_alert():
+	if final_alert == 0:
+		final_alert += 1
+		alert.play()
+		timer.start(1.5)
+
+func _on_Timer_timeout():
+	if final_alert < 4:
+		final_alert += 1
+		alert.play()
+		timer.start(1.5)
+	

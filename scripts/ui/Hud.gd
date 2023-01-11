@@ -18,8 +18,6 @@ onready var slow_flash = $Slow/SlowFlash
 
 var panic = 0
 var flashes = 2
-const final_alert = 4
-var on_final_alert = false
 
 var noise_flash_amount = 0
 var teleport_flash_amount = 0
@@ -53,8 +51,7 @@ func set_panic(amount):
 	flash_panic.visible = true
 	alert_flash.play("default")
 	alert_flash.visible = true
-	flashes = final_alert
-	on_final_alert = true
+	flashes = 2
 
 func add_to_panic(amount, final):
 	panic += amount
@@ -64,10 +61,6 @@ func add_to_panic(amount, final):
 	flashes = 2
 	alert_flash.play("default")
 	alert_flash.visible = true
-	
-	if final:
-		on_final_alert = true
-		flashes = final_alert
 
 func use_noise():
 	noise_flash.play("default")
@@ -93,8 +86,6 @@ func _on_FlashTimer_timeout():
 			flash_panic.visible = true
 		flashes -= 1
 		flash_timer.start()
-		if on_final_alert:
-			SoundManager.play_alert()
 	else:
 		flash_panic.visible = false
 		alert_flash.visible = false

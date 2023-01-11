@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=23 format=2]
 
 [ext_resource path="res://scripts/World.gd" type="Script" id=1]
 [ext_resource path="res://scenes/entity/MotherBrain.tscn" type="PackedScene" id=2]
@@ -12,6 +12,7 @@
 [ext_resource path="res://assets/ui/cordon.png" type="Texture" id=10]
 [ext_resource path="res://assets/sounds/mars_loop.wav" type="AudioStream" id=11]
 [ext_resource path="res://scenes/Powers.tscn" type="PackedScene" id=12]
+[ext_resource path="res://assets/effects/blood_sheet.png" type="Texture" id=13]
 
 [sub_resource type="AtlasTexture" id=1]
 atlas = ExtResource( 7 )
@@ -28,6 +29,30 @@ region = Rect2( 64, 0, 32, 32 )
 [sub_resource type="SpriteFrames" id=4]
 animations = [ {
 "frames": [ SubResource( 1 ), SubResource( 2 ), SubResource( 3 ) ],
+"loop": true,
+"name": "default",
+"speed": 5.0
+} ]
+
+[sub_resource type="AtlasTexture" id=5]
+atlas = ExtResource( 13 )
+region = Rect2( 0, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=6]
+atlas = ExtResource( 13 )
+region = Rect2( 16, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=7]
+atlas = ExtResource( 13 )
+region = Rect2( 32, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=8]
+atlas = ExtResource( 13 )
+region = Rect2( 48, 0, 16, 16 )
+
+[sub_resource type="SpriteFrames" id=16]
+animations = [ {
+"frames": [ SubResource( 5 ), SubResource( 6 ), SubResource( 7 ), SubResource( 8 ) ],
 "loop": true,
 "name": "default",
 "speed": 5.0
@@ -131,10 +156,6 @@ bus = "Music"
 
 [node name="Powers" parent="." instance=ExtResource( 12 )]
 
-[node name="LoseTimer" type="Timer" parent="."]
-wait_time = 2.0
-one_shot = true
-
 [node name="DoubleClickTimer" type="Timer" parent="."]
 wait_time = 0.2
 one_shot = true
@@ -143,7 +164,13 @@ one_shot = true
 wait_time = 3.0
 one_shot = true
 
+[node name="LoseBlood" type="AnimatedSprite" parent="."]
+visible = false
+position = Vector2( -18, -391 )
+z_index = 10
+frames = SubResource( 16 )
+
 [connection signal="animation_finished" from="ClickSpot" to="." method="_on_ClickSpot_animation_finished"]
-[connection signal="timeout" from="LoseTimer" to="." method="_on_LoseTimer_timeout"]
 [connection signal="timeout" from="DoubleClickTimer" to="." method="_on_DoubleClickTimer_timeout"]
 [connection signal="timeout" from="RestartTimer" to="." method="_on_RestartTimer_timeout"]
+[connection signal="animation_finished" from="LoseBlood" to="." method="_on_LoseBlood_animation_finished"]

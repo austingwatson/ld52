@@ -7,6 +7,7 @@ onready var click_spot = $ClickSpot
 onready var mother_brain = $MotherBrain
 onready var double_click_timer = $DoubleClickTimer
 onready var restart_timer = $RestartTimer
+onready var lose_blood = $LoseBlood
 
 const dome_scene = preload("res://scenes/entity/Dome.tscn")
 const drone_scene = preload("res://scenes/entity/Drone.tscn")
@@ -43,6 +44,7 @@ var queue_modifier = false
 
 var mother_ship_accel = 5.0
 var start_lose_timer = false
+var lose_cutscene_part = 0
 
 var double_click = 0
 
@@ -164,9 +166,11 @@ func _physics_process(delta):
 		if camera.position.distance_to(mother_brain.position) <= 1.0:
 			if !start_lose_timer:
 				start_lose_timer = true
-				$LoseTimer.start()
+				lose_blood.play("default")
+				lose_blood.visible = true
+				lose_blood.position = mother_brain.position + Vector2(-15, -15)
 		else:
-			camera.position += dir * delta * 50
+			camera.position += dir * delta * 100
 		
 func _process(delta):
 	var drones = get_tree().get_nodes_in_group("drone")
@@ -520,8 +524,7 @@ func get_selected():
 func add_to_panic(amount):
 	WorldBounds.panic_level += amount
 	var update_hud = WorldBounds.add_to_panic()
-	if update_hud:
-		hud.add_to_panic(amount, WorldBounds.soldiers_attack_mother)
+	hud.add_to_panic(amount, WorldBounds.soldiers_attack_mother)
 
 func add_to_mana(amount):
 	hud.add_to_mana(amount)
@@ -550,3 +553,18 @@ func _on_DoubleClickTimer_timeout():
 
 func _on_RestartTimer_timeout():
 	get_tree().change_scene("res://scenes/TitleScreen.tscn")
+
+func _on_LoseBlood_animation_finished():
+	lose_cutscene_part += 1
+	
+	if lose_cutscene_part == 1:
+		lose_blood.position = mother_brain.position + Vector2(15, -15)
+	elif lose_cutscene_part == 2:
+		lose_blood.position = mother_brain.position + Vector2(-15, 10)
+	elif lose_cutscene_part == 3:
+		lose_blood.position = mother_brain.position + Vector2(12, 15)
+	elif lose_cutscene_part >= 4 && lose_cutscene_part <= 7:
+		lose_blood.scale = Vector2(2, 2)
+		lose_blood.position = mother_brain.position
+	else:
+		get_tree().change_scene("res://scenes/GameOverScreen.tscn")
