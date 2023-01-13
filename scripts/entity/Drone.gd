@@ -2,12 +2,12 @@ extends Area2D
 
 onready var animated_sprite = $AnimatedSprite
 onready var brain = $Brain
-onready var line = $Line2D
 onready var commands = $Commands
 onready var animation_player = $AnimationPlayer
 onready var attack = $Attack
 onready var hit = $Hit
 onready var interaction_line = $InteractionLine
+onready var selection = $Selection
 
 var alive = true
 
@@ -119,10 +119,10 @@ func hurt():
 		queue_free()
 
 func select():
-	line.visible = true
+	selection.visible = true
 
 func deselect():
-	line.visible = false
+	selection.visible = false
 
 func holding_shift(shift):
 	commands.visible = shift
